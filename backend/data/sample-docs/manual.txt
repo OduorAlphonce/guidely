@@ -1,0 +1,69 @@
+Product Troubleshooting Manual
+
+Product: WidgetPro 3000
+Version: 3.2.1
+Last Updated: March 2025
+
+1. Device Overview
+The WidgetPro 3000 is a cloud-connected widget processor used for automated inventory management. It connects via Wi-Fi (2.4 GHz / 5 GHz) or Ethernet. The device processes up to 10,000 widgets per hour with an accuracy rate of 99.7%.
+
+LED Indicator Guide:
+- Solid green: Device is operational and connected to the cloud
+- Blinking green: Device is booting or updating firmware
+- Solid amber: Network connectivity issue
+- Blinking amber: Low inventory or maintenance required
+- Solid red: Hardware error — contact support
+- Blinking red: Critical error — immediate attention required
+
+2. Common Issues
+
+Issue 2.1: Device Won't Power On
+Causes: Faulty power cable, blown fuse, power outlet issue.
+Troubleshooting steps:
+1. Verify the power cable is securely connected at both ends.
+2. Test the outlet with another device to confirm it works.
+3. Inspect the power cable for visible damage. Replace if frayed or bent.
+4. Check the fuse in the power connector. The fuse is a 5A/250V glass fuse. Replace if blown.
+5. Press and hold the power button for 30 seconds to perform a hard reset.
+6. If none of the above works, contact support with the device serial number.
+
+Issue 2.2: Wi-Fi Connection Drops Intermittently
+Causes: Signal interference, router congestion, outdated firmware.
+Troubleshooting steps:
+1. Move the device closer to the router. Maximum recommended distance is 50 feet.
+2. Ensure the device is on a 2.4 GHz network (5 GHz has shorter range through walls).
+3. Change the Wi-Fi channel on your router to avoid interference from neighboring networks.
+4. Update the device firmware to the latest version (see Section 3).
+5. If problems persist, switch to a wired Ethernet connection for stability.
+
+Issue 2.3: Widget Count Is Inaccurate
+Causes: Dirty optical sensor, calibration drift, software bug.
+Troubleshooting steps:
+1. Clean the optical sensor with a lint-free cloth and isopropyl alcohol.
+2. Run the calibration routine: Settings > Maintenance > Calibrate Sensor.
+3. Verify the widget size settings match the actual widgets being processed.
+4. Check for software updates that may address counting bugs.
+5. If the error exceeds 1%, recalibrate using the calibration kit (part #WP-3000-CAL).
+
+Issue 2.4: Firmware Update Failed
+Causes: Power loss during update, corrupted update file, insufficient storage.
+Troubleshooting steps:
+1. Ensure the device has a stable power source and internet connection.
+2. Restart the device and attempt the update again.
+3. If the update continues to fail, download the firmware file manually from the support portal and upload it via the admin interface (Settings > Firmware > Manual Upload).
+4. Factory reset the device only as a last resort: press and hold the Reset button (located on the back panel) for 10 seconds with a paperclip.
+
+3. Firmware Update Procedure
+1. Connect the device to a stable power source and internet connection.
+2. Navigate to Settings > Firmware > Check for Updates.
+3. The device will download and verify the update automatically. Do not power off during this process.
+4. The device will restart once the update is installed. This takes approximately 3-5 minutes.
+5. Verify the firmware version: Settings > About > Firmware Version.
+
+4. Support Escalation
+If you are unable to resolve the issue using this manual, escalate to the support team:
+- Level 1 Support: helpdesk@company.com — response within 4 hours
+- Level 2 Support: Include "ESCALATE L2" in the subject line — response within 2 hours
+- Critical Issues: Call 1-800-555-0123 (available 24/7 for production-down situations)
+
+When contacting support, always provide: device serial number, firmware version, a description of the issue, and steps already taken.
