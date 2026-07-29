@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # Import your modular routes
 from backend.routes import documents, search
+from backend.models.record import Metrics
 
 # Initialize the core FastAPI application
 app = FastAPI(
@@ -34,3 +35,13 @@ async def root():
         "status": "online",
         "message": "Welcome to the Guidely API. Visit /docs for interactive documentation."
     }
+
+
+@app.get("/health")
+async def health():
+    return {"status": "healthy", "version": "1.0.0"}
+
+
+@app.get("/metrics", response_model=Metrics)
+async def get_metrics():
+    return Metrics()
