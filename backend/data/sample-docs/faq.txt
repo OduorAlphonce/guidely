@@ -1,0 +1,37 @@
+Frequently Asked Questions
+
+HR FAQs
+
+Q: How many PTO days do I get?
+A: Full-time employees accrue 15 PTO days per year, prorated monthly. After 3 years of service, this increases to 20 days per year. Unused PTO rolls over up to 5 days per year. PTO requests must be submitted at least 48 hours in advance and approved by your manager.
+
+Q: How do I enroll in health insurance?
+A: New hires must enroll within 30 days of their start date. Open enrollment runs annually from November 1-30. Visit the benefits portal at benefits.company.com to make changes. Coverage typically begins on the first of the month following enrollment.
+
+Q: What is the 401(k) matching policy?
+A: The company matches 100% of the first 3% of your salary and 50% of the next 2%. You are automatically enrolled at a 4% contribution rate after 60 days of employment. You can change your contribution percentage anytime through the benefits portal.
+
+Q: How do I report workplace harassment?
+A: Report incidents to HR at hr@company.com or through the anonymous ethics hotline at 1-800-555-0199. All reports are investigated within 5 business days. Retaliation against anyone who reports a concern in good faith is strictly prohibited.
+
+IT FAQs
+
+Q: My laptop won't turn on. What should I do?
+A: First, hold the power button for 15 seconds. Then plug in the charger and try again. If it still won't turn on, contact IT at helpdesk@company.com or visit the IT support desk in Building A, Room 102. Loaner laptops are available for immediate pickup.
+
+Q: How do I reset my password?
+A: Go to password.company.com and click "Forgot Password." You'll receive a recovery link via your backup email. If you don't have a backup email configured, contact IT support to verify your identity. Passwords must be at least 12 characters with uppercase, lowercase, number, and special character.
+
+Q: What VPN client should I use?
+A: The company uses OpenVPN Connect. Download it from the company software portal at software.company.com. Your VPN credentials are the same as your work email and Active Directory password. If you encounter connection issues, try switching to TCP mode instead of UDP.
+
+General FAQs
+
+Q: What are the company holidays for this year?
+A: The company observes 11 paid holidays: New Year's Day, Martin Luther King Jr. Day, Presidents' Day, Memorial Day, Juneteenth, Independence Day, Labor Day, Veterans Day, Thanksgiving Day, the Friday after Thanksgiving, and Christmas Day. Floating holidays allow employees to substitute 2 additional days.
+
+Q: How do I update my emergency contact information?
+A: Log into the HR portal at hr.company.com, navigate to "My Profile," and locate the "Emergency Contacts" section. Add or edit contacts as needed. You must have at least one emergency contact on file at all times.
+
+Q: Can I expense coffee and snacks?
+A: No, personal meals and beverages are not reimbursable. However, if you are hosting a client or a team meeting with external attendees, you may expense up to $25 per person for meals. Always retain the itemized receipt.
