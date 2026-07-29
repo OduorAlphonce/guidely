@@ -1,7 +1,7 @@
 # Guidely — 9-Day Build Plan
 
 ## Day 1 – Project Scaffold & Backend Foundation
-- [ ] Create full repo structure:
+- [x] Create full repo structure:
   ```
   guidely/
   ├── frontend/       (React/Vite scaffold later)
@@ -15,17 +15,17 @@
   ├── .env
   └── README.md
   ```
-- [ ] Set up FastAPI with CORS middleware, `.env` loading (`python-dotenv`)
-- [ ] Add `/health` endpoint
-- [ ] Write **5+ sample documents** → `data/sample-docs/`:
+- [x] Set up FastAPI with CORS middleware, `.env` loading (`python-dotenv`)
+- [x] Add `/health` endpoint
+- [x] Write **5+ sample documents** → `data/sample-docs/`:
   - `policy.txt` — company remote-work policy
   - `faq.txt` — common HR/IT FAQs
   - `guide.txt` — onboarding guide
   - `howto.txt` — how to file an expense report
   - `manual.txt` — product troubleshooting manual
-- [ ] Build **document parser** (`.txt`, `.md`, optionally `.pdf`)
-- [ ] Build **text chunker** (~500–1000 tokens, with overlap for context)
-- [ ] Define Pydantic models: `Document`, `Chunk`, `Query`, `Answer`, `Metrics`
+- [x] Build **document parser** (`.txt`, `.md`, optionally `.pdf`)
+- [x] Build **text chunker** (~500–1000 tokens, with overlap for context)
+- [x] Define Pydantic models: `Document`, `Chunk`, `Query`, `Answer`, `Metrics`
 
 ## Day 2 – Embedding & Vector Storage
 - [ ] Build **embedding service** (OpenAI `text-embedding-ada-002`)
