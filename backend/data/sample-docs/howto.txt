@@ -1,0 +1,39 @@
+How to File an Expense Report
+
+Step-by-step guide for submitting and approving expense reports in the company system.
+
+1. Before You Spend
+Check that your expense is eligible. Eligible categories include: travel (flights, hotels, rental cars), client meals, team building events, office supplies, home office equipment (up to $500 one-time), internet ($75/month max), and cell phone ($50/month max for personal device users).
+Ineligible expenses include: alcohol, personal meals, commuting costs (tolls, gas, parking for regular commute), coffee/ snacks, and gifts over $50.
+
+Always obtain prior approval from your manager for expenses over $200. For expenses over $1,000, VP-level pre-approval is required. Retain all itemized receipts — credit card statements alone are not sufficient.
+
+2. Submitting an Expense Report
+Log into the expense portal at expenses.company.com. Click "New Report." Fill in the report name (format: "YYYY-MM-DD - Purpose"). Add each expense as a line item with:
+- Date of purchase
+- Category (select from the dropdown)
+- Vendor name
+- Amount (in USD, before tax)
+- Description (e.g., "Client dinner at Trattoria Roma - discussed Q2 roadmap")
+- Attach a photo or scan of the itemized receipt
+
+Receipts under $25 do not require a receipt attachment, but a description is still required.
+
+3. Approval Workflow
+Once submitted, the report goes to your manager for approval. Managers should review and approve or reject within 5 business days. Approved reports are processed for reimbursement on the next payroll cycle (the 15th and last day of each month).
+
+If rejected, you will receive a notification with the reason. Fix the issue and resubmit. Common rejection reasons: missing receipt, incorrect category, no prior approval for large amounts.
+
+4. Expense Policy Violations
+Submitting fraudulent expenses is a serious offense. First offense results in a written warning and repayment of the fraudulent amount. Second offense results in termination. Always be honest and accurate in your submissions.
+
+5. International Expenses
+International travel expenses should be submitted in USD using the exchange rate from the date of purchase. Use the company's approved exchange rate tool (xe.com/company). Attach both the foreign currency receipt and the USD conversion.
+
+For travel booked through the company travel portal (travel.company.com), expenses are automatically recorded. You only need to add per-diem expenses (meals, local transport) manually.
+
+6. Common Issues & Solutions
+- "Receipt is lost": Submit a missing receipt affidavit form from the expenses portal. You can do this up to 3 times per calendar year.
+- "Expense was denied": Check the rejection reason, correct the issue, and resubmit within 14 days.
+- "Reimbursement is late": Check the payroll schedule first. If it's past the scheduled date, contact payroll at payroll@company.com.
+- "Wrong amount reimbursed": Contact your manager to approve a correction, then submit an adjustment report.
