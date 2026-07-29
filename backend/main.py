@@ -1,6 +1,9 @@
 # backend/main.py
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+load_dotenv()
 
 # Import your modular routes
 from backend.routes import documents, search
