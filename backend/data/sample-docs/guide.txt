@@ -1,0 +1,51 @@
+Employee Onboarding Guide
+
+Welcome to the company! This guide will walk you through your first week.
+
+Before Your First Day
+
+1. Complete your new hire paperwork in the HR portal (hr.company.com). This includes your W-4, I-9, direct deposit setup, and emergency contact information.
+2. Order your equipment through the IT onboarding portal. You will receive a laptop, monitor, keyboard, mouse, and headset. Equipment is shipped to your home address and typically arrives within 3 business days.
+3. Set up your workspace. Ensure you have a desk, chair, and a reliable internet connection. The home office stipend of $500 will be reimbursed after your first payroll cycle.
+
+Day 1: Orientation
+
+9:00 AM - Welcome meeting with your manager via Zoom. Your manager will provide an overview of the team, your role, and expectations for the first 90 days.
+10:00 AM - IT setup session. Install the company VPN, Slack, email on your phone, and the password manager (LastPass). Your IT buddy will walk you through each step.
+12:00 PM - Virtual team lunch. The team will order lunch for you (expense it under "Team Building"). Use this time to get to know your colleagues informally.
+2:00 PM - HR benefits orientation. Review health insurance options, 401(k) enrollment, and PTO policies. Enroll in benefits within 30 days.
+
+Day 2: Tools & Training
+
+9:00 AM - Tool walkthrough: Jira for task tracking, Confluence for documentation, and GitHub for code repositories. You will receive access invitations to each platform by end of day.
+11:00 AM - Code of Conduct training (mandatory, 45 minutes). Complete the training module and quiz in the LMS. A score of 80% or higher is required.
+1:00 PM - Product overview session. Learn about the company's products, key customers, and the current roadmap. Read the product FAQ in Confluence.
+3:00 PM - Set up your development environment. Follow the setup guide in the engineering wiki. Your tech lead will review your setup before you start coding.
+
+Day 3: First Assignments
+
+9:00 AM - Code review orientation. Learn the team's code review process: submit a PR, request at least two reviewers, address all comments before merging. Review the team's coding style guide.
+11:00 AM - Shadow a customer support call. Listen in on a live support call to understand common customer issues and how the team resolves them.
+1:00 PM - Pair programming session with your tech lead. Work on a small bug fix together. This is a great way to learn the codebase and the deployment pipeline.
+3:00 PM - Write your first unit test. The team maintains 80% code coverage. Your first task is to add tests for an existing module.
+
+Day 4: Independence
+
+9:00 AM - Pick up your first small ticket from the backlog. Filter by the "good first issue" label. Assign it to yourself and move it to "In Progress."
+11:00 AM - Attend the weekly team standup (15 minutes). Share what you worked on yesterday, what you plan to work on today, and any blockers.
+1:00 PM - Documentation review. Read the team's architecture decision records (ADRs) in Confluence. Leave comments if anything is unclear.
+3:00 PM - Deploy your first change. After your PR is approved, deploy to staging using the CI/CD pipeline. Your tech lead will review the staging deployment with you.
+
+Day 5: Wrap-Up & Roadmap
+
+9:00 AM - First-week check-in with your manager. Discuss what went well, what was confusing, and adjust your 30-60-90 day plan if needed.
+11:00 AM - Set up your recurring meetings: weekly 1:1 with manager, team standups, sprint planning, and retro.
+1:00 PM - Explore the company wiki. Bookmark important pages: engineering playbook, incident response runbook, deployment checklist.
+3:00 PM - Join a company social channel (#random, #pet-pics, #book-club). Building relationships outside your immediate team is encouraged.
+
+Key Contacts
+- Manager: Manager name in HR portal
+- Tech Lead: Assigned on Day 1
+- IT Buddy: Assigned on Day 1
+- HR Representative: hr@company.com
+- IT Support: helpdesk@company.com
