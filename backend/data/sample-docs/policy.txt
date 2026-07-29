@@ -1,0 +1,28 @@
+Company Remote Work Policy
+
+Effective Date: January 1, 2025
+Version: 2.3
+
+1. Eligibility
+All full-time employees in good standing are eligible for remote work up to 4 days per week. Manager approval is required for any arrangement exceeding this limit. Part-time employees may request a prorated schedule. Contractors and interns require explicit VP-level approval.
+
+2. Equipment and Supplies
+The company provides a laptop, monitor, headset, and a one-time home office stipend of $500. Employees are responsible for maintaining their own high-speed internet connection (minimum 25 Mbps download, 5 Mbps upload). IT support is available Monday-Friday, 9 AM-6 PM ET via the #it-support Slack channel or by emailing helpdesk@company.com.
+
+3. Work Hours and Availability
+Core hours are 10 AM - 3 PM ET, Monday through Friday. Employees must be available via Slack or phone during core hours. Outside of core hours, teams have flexibility to set their own schedules as long as business needs are met. Overtime must be pre-approved by your manager.
+
+4. Data Security
+All company data must be accessed through the company VPN. Personal devices are not permitted for storing or processing company data unless enrolled in the MDM program. Screens must be obscured when working in public spaces. Any security incidents must be reported to security@company.com within 1 hour of discovery.
+
+5. Communication Expectations
+Slack status must reflect current availability (active, away, in a meeting, do not disturb). Internal meetings should use video when possible. Response time for Slack messages should be within 2 hours during business hours. Urgent matters should be directed via phone call or the #urgent channel.
+
+6. Performance Monitoring
+Productivity is measured by output and goal completion, not by hours logged. Employees submit weekly progress reports every Friday by 5 PM ET. Quarterly reviews assess goal attainment, collaboration, and adherence to company values. Repeated failure to meet performance standards may result in remote work privileges being revoked.
+
+7. Reimbursement
+Internet expenses are reimbursed up to $75 monthly. Cell phone plans are reimbursed up to $50 monthly if a personal device is used for work. Claims must be submitted through the expense portal with a receipt by the 15th of the following month.
+
+8. Policy Violations
+First violation results in a written warning. Second violation within 12 months results in a 30-day remote work suspension. Third violation leads to permanent revocation of remote work privileges and may result in disciplinary action up to termination.
