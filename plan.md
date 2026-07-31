@@ -28,13 +28,13 @@
 - [x] Define Pydantic models: `Document`, `Chunk`, `Query`, `Answer`, `Metrics`
 
 ## Day 2 – Embedding & Vector Storage
-- [ ] Build **embedding service** (OpenAI `text-embedding-ada-002`)
-- [ ] Implement **FAISS vector store** with save/load to disk
-- [ ] Build **indexing pipeline**: upload → parse → chunk → embed → store
-- [ ] Implement **embedding cache** (compare file hash; skip unchanged files)
-- [ ] Create `POST /documents/upload` endpoint
-- [ ] Create `POST /documents/reindex` endpoint
-- [ ] Test indexing with the 5 sample docs
+- [x] Build **embedding service** (OpenAI `text-embedding-ada-002`)
+- [x] Implement **FAISS vector store** with save/load to disk
+- [x] Build **indexing pipeline**: upload → parse → chunk → embed → store
+- [x] Implement **embedding cache** (compare file hash; skip unchanged files)
+- [x] Create `POST /documents/upload` endpoint
+- [x] Create `POST /documents/reindex` endpoint
+- [x] Test indexing with the 5 sample docs
 
 ## Day 3 – Retrieval & Q&A Pipeline
 - [ ] Implement **vector search**: embed query → FAISS `similarity_search` → top-k chunks

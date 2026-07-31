@@ -1,4 +1,6 @@
 # backend/main.py
+from pathlib import Path
+
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,6 +10,9 @@ load_dotenv()
 # Import your modular routes
 from backend.routes import documents, search
 from backend.models.record import Metrics
+
+# Ensure uploads directory exists before the app serves requests
+Path(__file__).resolve().parent.joinpath("data", "uploads").mkdir(parents=True, exist_ok=True)
 
 # Initialize the core FastAPI application
 app = FastAPI(
