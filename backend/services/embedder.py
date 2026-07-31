@@ -24,7 +24,7 @@ class Embedder:
         else:
             logger.info("OPENAI_API_KEY not set, using fallback model %s", FALLBACK_MODEL)
             self._model = FALLBACK_MODEL
-            self._transformer = SentenceTransformer(self._model)
+            self._transformer = SentenceTransformer(self._model, device="cpu")
 
     def embed(self, text: str) -> list[float]:
         if self._model == OPENAI_MODEL:
@@ -55,7 +55,7 @@ class Embedder:
 
     def _switch_to_fallback(self):
         self._model = FALLBACK_MODEL
-        self._transformer = SentenceTransformer(self._model)
+        self._transformer = SentenceTransformer(self._model, device="cpu")
 
     def _embed_openai(self, text: str) -> list[float]:
         response = self._client.embeddings.create(model=OPENAI_MODEL, input=text)
