@@ -11,3 +11,8 @@ backend/venv/
 # Ignore Python cache files
 **/__pycache__/
 **/*.py[cod]
+
+# Ignore generated index/cache artifacts
+backend/data/faiss_index*
+backend/data/embedding_cache.json
+backend/data/embedding_cache.json.tmp
