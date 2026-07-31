@@ -61,8 +61,8 @@ def _split_text(text: str, max_tokens: int, separators: list[str]) -> list[str]:
 
 def _split_once(text: str, separator: str) -> list[str]:
     if separator == " ":
-        return text.split(" ")
-    return [s.strip() for s in re.split(separator, text) if s.strip()]
+        return [text]
+    return [s.strip() for s in re.split(re.escape(separator), text) if s.strip()]
 
 
 def _split_by_tokens(text: str, max_tokens: int) -> list[str]:

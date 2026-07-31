@@ -54,6 +54,23 @@ Ask Question ──► Embed Query ──► FAISS Search ──► Top-k Chunks
                                           {answer, sources[snippet, file]}
 ```
 
+## Metrics (Day 2 – Indexing Pipeline)
+
+Measured by running `python backend/tests/test_indexing.py` (sentence-transformers fallback, CPU). Artifacts written to `backend/data/`.
+
+| Metric | Value |
+|---|---|
+| Number of files indexed | 5 |
+| Total chunks created | 63 |
+| Total time taken (first-time indexing) | 2.59 s |
+| Cache hit rate on re-index | 100% (all 5 files skipped, 0.3 ms) |
+| Embedding vectors in FAISS | 63 |
+| Embedding dimension | 384 (all-MiniLM-L6-v2 fallback) |
+| Re-embedding on modified file | Yes (only the changed file) |
+| Edge cases handled | Empty file, unsupported type, large file |
+
+To reproduce: `backend/.venv/bin/python backend/tests/test_indexing.py`
+
 ## Project Structure
 
 ```
@@ -75,7 +92,10 @@ guidely/
 │   │   ├── parser.py        # File parsing (txt, md, pdf)
 │   │   ├── chunker.py       # Token-aware text chunking
 │   │   ├── embedder.py      # Embedding generation
+│   │   ├── indexing.py      # Indexing pipeline orchestration
 │   │   └── retriever.py     # Vector search + LLM
+│   ├── tests/
+│   │   └── test_indexing.py # End-to-end indexing verification
 │   └── data/sample-docs/    # 5 sample documents
 ├── requirements.txt
 ├── plan.md
