@@ -9,7 +9,9 @@ logger = logging.getLogger(__name__)
 
 
 class VectorStore:
-    def __init__(self, index_path: str = "data/faiss_index"):
+    def __init__(self, index_path: str | None = None):
+        if index_path is None:
+            index_path = str(Path(__file__).resolve().parent.parent / "data" / "faiss_index")
         self._index_path = Path(index_path)
         self._index_path.parent.mkdir(parents=True, exist_ok=True)
         self._index = None
@@ -64,6 +66,25 @@ class VectorStore:
 
     def count(self) -> int:
         return self._index.ntotal if self._index is not None else 0
+
+    def remove_document(self, doc_id: str) -> int:
+        """Remove every vector belonging to a document; return count removed."""
+        if self._index is None or self._index.ntotal == 0:
+            return 0
+        keep = [i for i, m in enumerate(self._metadata) if m.get("doc_id") != doc_id]
+        removed = len(self._metadata) - len(keep)
+        if removed == 0:
+            return 0
+        all_vectors = self._index.reconstruct_n(0, self._index.ntotal)
+        dim = self._index.d
+        self._index = faiss.IndexFlatIP(dim)
+        self._metadata = [self._metadata[i] for i in keep]
+        if keep:
+            vectors_np = np.array([all_vectors[i] for i in keep], dtype=np.float32)
+            self._index.add(vectors_np)
+        self.save()
+        logger.info("Removed %d vectors for document %s", removed, doc_id)
+        return removed
 
     def clear(self):
         self._index = None

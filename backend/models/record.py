@@ -35,6 +35,28 @@ class Query(BaseModel):
     question: str = Field(..., min_length=1)
 
 
+class IndexStatus(str, Enum):
+    indexed = "indexed"
+    skipped = "skipped"
+    failed = "failed"
+
+
+class IndexResult(BaseModel):
+    file: str
+    status: IndexStatus
+    doc_id: str = ""
+    chunks: int = 0
+    error: str = ""
+
+
+class ReindexSummary(BaseModel):
+    total: int = 0
+    indexed: int = 0
+    skipped: int = 0
+    failed: int = 0
+    results: list[IndexResult] = []
+
+
 class SourceRef(BaseModel):
     file: str
     snippet: str

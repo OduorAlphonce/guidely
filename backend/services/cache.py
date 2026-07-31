@@ -2,11 +2,12 @@ import json
 import logging
 import os
 import threading
+from datetime import datetime
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_CACHE_PATH = "data/embedding_cache.json"
+DEFAULT_CACHE_PATH = str(Path(__file__).resolve().parent.parent / "data" / "embedding_cache.json")
 
 
 class EmbeddingCache:
@@ -33,6 +34,7 @@ class EmbeddingCache:
             self._data["files"][self._normalize_path(file_path)] = {
                 "md5": md5,
                 "chunks": chunks or [],
+                "indexed_at": datetime.utcnow().isoformat(),
             }
         self.save()
 
@@ -50,6 +52,22 @@ class EmbeddingCache:
             if key in self._data["files"]:
                 del self._data["files"][key]
         self.save()
+
+    def remove_by_md5(self, md5: str) -> int:
+        """Drop every cached entry whose content hash matches; return count removed."""
+        removed = 0
+        with self._lock:
+            for key, entry in list(self._data["files"].items()):
+                if entry.get("md5") == md5:
+                    del self._data["files"][key]
+                    removed += 1
+        if removed:
+            self.save()
+        return removed
+
+    def list_files(self) -> dict:
+        """Return the cached file entries keyed by normalized path."""
+        return dict(self._data["files"])
 
     def clear(self) -> None:
         """Drop every cached entry."""
