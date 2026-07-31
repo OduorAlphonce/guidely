@@ -54,7 +54,7 @@ Ask Question ──► Embed Query ──► FAISS Search ──► Top-k Chunks
                                           {answer, sources[snippet, file]}
 ```
 
-## Metrics (Day 2 – Indexing Pipeline)
+## Metrics
 
 Measured by running `python backend/tests/test_indexing.py` (sentence-transformers fallback, CPU). Artifacts written to `backend/data/`.
 
