@@ -32,7 +32,7 @@ class Chunk(BaseModel):
 
 
 class Query(BaseModel):
-    question: str = Field(..., min_length=1)
+    question: str = Field(...)
 
 
 class IndexStatus(str, Enum):

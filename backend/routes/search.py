@@ -34,6 +34,10 @@ def _ms(start: float) -> float:
 async def search(query: Query):
     request_start = time.perf_counter()
 
+    if not query.question.strip():
+        logger.warning("Rejected empty question")
+        raise HTTPException(status_code=400, detail="Question must not be empty.")
+
     retrieve_start = time.perf_counter()
     chunks = retrieve(query.question, k=TOP_K)
     retrieval_ms = _ms(retrieve_start)
