@@ -25,11 +25,16 @@ if str(ROOT_DIR) not in sys.path:
 
 from fastapi.testclient import TestClient
 
+import logging
 from backend.main import app
 from backend.routes import search as search_route
 from backend.services import indexing, retrieval
 from backend.services.cache import EmbeddingCache
 from backend.services.vector_store import VectorStore
+
+# backend.main configures INFO logging for uvicorn; silence it here so the
+# test output stays readable while we capture the search log line explicitly.
+logging.getLogger().setLevel(logging.CRITICAL)
 
 PASS = 0
 FAIL = 0
@@ -40,6 +45,15 @@ SAMPLE_NAMES = sorted(p.name for p in SAMPLE_DIR.glob("*.txt"))
 CLIENT = TestClient(app)
 
 CANNED_ANSWER = "Up to two days per week, per policy.txt."
+
+
+class CapturingHandler(logging.Handler):
+    def __init__(self):
+        super().__init__(level=logging.INFO)
+        self.messages = []
+
+    def emit(self, record):
+        self.messages.append(self.format(record))
 
 
 def check(description, condition):
@@ -58,6 +72,7 @@ class FakeLLM:
         self._answer = answer
         self._error = error
         self.calls = []
+        self.model = "gpt-3.5-turbo"
 
     def generate_answer(self, question, context):
         self.calls.append({"question": question, "context": context})
@@ -151,7 +166,7 @@ def test_end_to_end_retrieval():
         docs_dir = tmpdir / "docs"
         docs_dir.mkdir()
         for f in SAMPLE_NAMES:
-            shutil.copy(SAMPLE_DIR / f, docs_dir / f.name)
+            shutil.copy(SAMPLE_DIR / f, docs_dir / f)
 
         cache = EmbeddingCache(str(tmpdir / "embedding_cache.json"))
         vector_store = VectorStore(str(tmpdir / "faiss_index"))
@@ -183,9 +198,33 @@ def test_end_to_end_retrieval():
         shutil.rmtree(tmpdir, ignore_errors=True)
 
 
+def test_latency_is_logged():
+    print("\nTest 6: Every /search request is logged with total latency")
+    handler = CapturingHandler()
+    search_route.logger.addHandler(handler)
+    search_route.logger.setLevel(logging.INFO)
+    try:
+        search_route.retrieve = lambda question, k=5: sample_chunks()
+        search_route.llm = FakeLLM()
+        resp = CLIENT.post("/api/search/", json={"question": "How many remote days?"})
+        check("returns HTTP 200", resp.status_code == 200)
+
+        request_lines = [m for m in handler.messages if "search request" in m]
+        check("a search request log line was emitted", len(request_lines) == 1)
+        line = request_lines[0] if request_lines else ""
+        check("log includes total_ms", "total_ms=" in line)
+        check("log includes retrieval_ms breakdown", "retrieval_ms=" in line)
+        check("log includes llm_ms breakdown", "llm_ms=" in line)
+        check("log includes source count", "sources=2" in line)
+        check("log includes the model used", "model=gpt-3.5-turbo" in line)
+        check("log includes the question", "How many remote days?" in line)
+    finally:
+        search_route.logger.removeHandler(handler)
+
+
 def main():
     print("=" * 64)
-    print("Guidely search endpoint — verification (issue #14)")
+    print("Guidely search endpoint — verification (issue #14, issue #15)")
     print("=" * 64)
 
     test_success_with_mocked_llm()
@@ -193,6 +232,7 @@ def main():
     test_empty_question_rejected()
     test_missing_api_key_is_actionable()
     test_end_to_end_retrieval()
+    test_latency_is_logged()
 
     print("\n" + "=" * 64)
     print(f"RESULTS: {PASS} passed, {FAIL} failed")
