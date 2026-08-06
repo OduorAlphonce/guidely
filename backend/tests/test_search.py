@@ -1,7 +1,7 @@
-"""Tests for the search endpoint (issue #14).
+"""End-to-end Q&A tests (issues #14, #15, #16).
 
 The LLM is mocked so no real OpenAI API key or network call is required.
-One end-to-end check seeds a real FAISS store with the sample docs using the
+End-to-end checks seed a real FAISS store with the sample docs using the
 sentence-transformers fallback embedder, so retrieval is exercised for real.
 
 Run from the repo root:
@@ -100,6 +100,28 @@ def sample_chunks():
     ]
 
 
+def seed_store(tmpdir):
+    """Copy the sample docs and index them into a temp cache + FAISS store."""
+    docs_dir = tmpdir / "docs"
+    docs_dir.mkdir()
+    for f in SAMPLE_NAMES:
+        shutil.copy(SAMPLE_DIR / f, docs_dir / f)
+
+    cache = EmbeddingCache(str(tmpdir / "embedding_cache.json"))
+    vector_store = VectorStore(str(tmpdir / "faiss_index"))
+
+    indexing.cache = cache
+    indexing.vector_store = vector_store
+    indexing.embedder = retrieval.embedder
+
+    for name in SAMPLE_NAMES:
+        result = indexing.index_document(str(docs_dir / name))
+        check(f"indexed {name}", result["status"] == "indexed")
+
+    retrieval.vector_store = vector_store
+    return vector_store
+
+
 def test_success_with_mocked_llm():
     print("\nTest 1: Successful search with mocked LLM")
     fake = FakeLLM()
@@ -140,9 +162,16 @@ def test_no_results_message():
 
 
 def test_empty_question_rejected():
-    print("\nTest 3: Empty question is rejected")
+    print("\nTest 3: Empty question is rejected with 400")
     resp = CLIENT.post("/api/search/", json={"question": ""})
-    check("returns HTTP 422 for empty question", resp.status_code == 422)
+    check("returns HTTP 400 for empty question", resp.status_code == 400)
+    check("400 carries a clear message", "empty" in resp.json()["detail"].lower())
+
+    resp = CLIENT.post("/api/search/", json={"question": "   "})
+    check("returns HTTP 400 for whitespace-only question", resp.status_code == 400)
+
+    resp = CLIENT.post("/api/search/", json={})
+    check("returns HTTP 422 when question is missing", resp.status_code == 422)
 
 
 def test_missing_api_key_is_actionable():
@@ -160,26 +189,11 @@ def test_missing_api_key_is_actionable():
 
 
 def test_end_to_end_retrieval():
-    print("\nTest 5: End-to-end retrieval with real FAISS store + fallback embedder")
+    print("\nTest 5: End-to-end Q&A with real FAISS store + fallback embedder")
     tmpdir = Path(tempfile.mkdtemp(prefix="guidely_search_test_"))
     try:
-        docs_dir = tmpdir / "docs"
-        docs_dir.mkdir()
-        for f in SAMPLE_NAMES:
-            shutil.copy(SAMPLE_DIR / f, docs_dir / f)
-
-        cache = EmbeddingCache(str(tmpdir / "embedding_cache.json"))
-        vector_store = VectorStore(str(tmpdir / "faiss_index"))
-
-        indexing.cache = cache
-        indexing.vector_store = vector_store
-        indexing.embedder = retrieval.embedder
-
-        for name in SAMPLE_NAMES:
-            result = indexing.index_document(str(docs_dir / name))
-            check(f"indexed {name}", result["status"] == "indexed")
-
-        retrieval.vector_store = vector_store
+        seed_store(tmpdir)
+        search_route.retrieve = retrieval.retrieve
         search_route.llm = FakeLLM()
 
         resp = CLIENT.post(
@@ -189,11 +203,50 @@ def test_end_to_end_retrieval():
 
         check("returns HTTP 200", resp.status_code == 200)
         body = resp.json()
-        check("answer generated", body["answer"] == CANNED_ANSWER)
+        check("response has shape question/answer/sources/latency_ms", {
+            "question", "answer", "sources", "latency_ms"
+        } <= set(body))
+        check("answer is non-empty", body["answer"] != "")
+        check("answer matches the generated answer", body["answer"] == CANNED_ANSWER)
         check("latency_ms is populated", body["latency_ms"] > 0)
         check("sources reference real sample-doc files", len(body["sources"]) > 0 and all(
             s["file"] in SAMPLE_NAMES for s in body["sources"]
         ))
+    finally:
+        shutil.rmtree(tmpdir, ignore_errors=True)
+
+
+def test_retrieval_correct_source_files():
+    print("\nTest 7: Known-answer questions reference the correct file")
+    tmpdir = Path(tempfile.mkdtemp(prefix="guidely_search_known_"))
+    try:
+        seed_store(tmpdir)
+        known_answers = [
+            ("How many remote work days per week are allowed?", "policy.txt"),
+            ("How do I submit an expense report?", "howto.txt"),
+            ("How many PTO days do I get?", "faq.txt"),
+        ]
+        for question, expected in known_answers:
+            results = retrieval.retrieve(question, k=5)
+            check(f"{question!r} top-1 is {expected}", results and results[0]["filename"] == expected)
+    finally:
+        shutil.rmtree(tmpdir, ignore_errors=True)
+
+
+def test_no_documents_indexed_graceful():
+    print("\nTest 8: No documents indexed -> graceful response")
+    tmpdir = Path(tempfile.mkdtemp(prefix="guidely_search_nodocs_"))
+    try:
+        retrieval.vector_store = VectorStore(str(tmpdir / "empty_faiss"))
+        search_route.retrieve = retrieval.retrieve
+
+        resp = CLIENT.post("/api/search/", json={"question": "How many remote days?"})
+
+        check("returns HTTP 200", resp.status_code == 200)
+        body = resp.json()
+        check("graceful no-results message", body["answer"] == search_route.NO_RESULTS_MESSAGE)
+        check("no sources returned", body["sources"] == [])
+        check("latency_ms is populated", body["latency_ms"] > 0)
     finally:
         shutil.rmtree(tmpdir, ignore_errors=True)
 
@@ -224,7 +277,7 @@ def test_latency_is_logged():
 
 def main():
     print("=" * 64)
-    print("Guidely search endpoint — verification (issue #14, issue #15)")
+    print("Guidely search endpoint — end-to-end Q&A (issues #14, #15, #16)")
     print("=" * 64)
 
     test_success_with_mocked_llm()
@@ -233,6 +286,8 @@ def main():
     test_missing_api_key_is_actionable()
     test_end_to_end_retrieval()
     test_latency_is_logged()
+    test_retrieval_correct_source_files()
+    test_no_documents_indexed_graceful()
 
     print("\n" + "=" * 64)
     print(f"RESULTS: {PASS} passed, {FAIL} failed")
