@@ -37,13 +37,13 @@
 - [x] Test indexing with the 5 sample docs
 
 ## Day 3 – Retrieval & Q&A Pipeline
-- [ ] Implement **vector search**: embed query → FAISS `similarity_search` → top-k chunks
-- [ ] Wire up **LLM service** (GPT-3.5/4-turbo) with a prompt template:
+- [x] Implement **vector search**: embed query → FAISS `similarity_search` → top-k chunks
+- [x] Wire up **LLM service** (GPT-3.5/4-turbo) with a prompt template:
   - System: "Answer concisely using only the provided context. Cite source file names."
   - User: context snippets + question
-- [ ] Build `POST /search` endpoint: `{question}` → `{answer, sources[{file, snippet}]}`
-- [ ] Add per-request **latency logging**
-- [ ] Test Q&A flow end-to-end
+- [x] Build `POST /search` endpoint: `{question}` → `{answer, sources[{file, snippet}]}`
+- [x] Add per-request **latency logging**
+- [x] Test Q&A flow end-to-end
 
 ## Day 4 – Error Handling, Logging & Metrics
 - [ ] Handle edge cases:
