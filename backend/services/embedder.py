@@ -1,5 +1,6 @@
 import logging
 import os
+import threading
 import time
 
 import openai
@@ -13,6 +14,27 @@ FALLBACK_MODEL = "all-MiniLM-L6-v2"
 MAX_RETRIES = 2
 RETRY_DELAY = 1.0
 
+_model_lock = threading.Lock()
+_transformer = None
+_transformer_model = None
+
+
+def _get_transformer(model: str) -> SentenceTransformer:
+    """Return a process-wide shared SentenceTransformer, loaded lazily on first use.
+
+    The model is expensive to load (torch + tokenizer), so every Embedder
+    instance shares one copy instead of each loading its own on construction.
+    """
+    global _transformer, _transformer_model
+    if _transformer is not None and _transformer_model == model:
+        return _transformer
+    with _model_lock:
+        if _transformer is None or _transformer_model != model:
+            logger.info("Loading fallback embedding model %s", model)
+            _transformer = SentenceTransformer(model, device="cpu")
+            _transformer_model = model
+    return _transformer
+
 
 class Embedder:
     def __init__(self):
@@ -24,7 +46,6 @@ class Embedder:
         else:
             logger.info("OPENAI_API_KEY not set, using fallback model %s", FALLBACK_MODEL)
             self._model = FALLBACK_MODEL
-            self._transformer = SentenceTransformer(self._model, device="cpu")
 
     def embed(self, text: str) -> list[float]:
         if self._model == OPENAI_MODEL:
@@ -55,7 +76,6 @@ class Embedder:
 
     def _switch_to_fallback(self):
         self._model = FALLBACK_MODEL
-        self._transformer = SentenceTransformer(self._model, device="cpu")
 
     def _embed_openai(self, text: str) -> list[float]:
         response = self._client.embeddings.create(model=OPENAI_MODEL, input=text)
@@ -71,13 +91,13 @@ class Embedder:
         return [d.embedding for d in sorted_data]
 
     def _embed_fallback(self, text: str) -> list[float]:
-        embedding = self._transformer.encode(text)
+        embedding = _get_transformer(self._model).encode(text)
         token_count = len(self._encoding.encode(text))
         logger.info("model=%s tokens=%d count=1", self._model, token_count)
         return embedding.tolist()
 
     def _embed_batch_fallback(self, texts: list[str]) -> list[list[float]]:
-        embeddings = self._transformer.encode(texts)
+        embeddings = _get_transformer(self._model).encode(texts)
         total_tokens = sum(len(self._encoding.encode(t)) for t in texts)
         logger.info("model=%s tokens=%d count=%d", self._model, total_tokens, len(texts))
         return [emb.tolist() for emb in embeddings]
