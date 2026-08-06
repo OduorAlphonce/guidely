@@ -28,6 +28,10 @@ class LLM:
             logger.warning("OPENAI_API_KEY not set; answer generation will fail until it is configured")
             self._client = None
 
+    @property
+    def model(self) -> str:
+        return self._model
+
     def generate_answer(self, question: str, context: list[dict]) -> str:
         if self._client is None:
             raise ValueError(
