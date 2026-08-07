@@ -1,9 +1,10 @@
 # backend/main.py
 import logging
+import uuid
 from pathlib import Path
 
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 logging.basicConfig(
@@ -15,6 +16,8 @@ load_dotenv()
 # Import your modular routes
 from backend.routes import documents, search
 from backend.models.record import Metrics
+from backend.services import indexing
+from backend.services.stats import stats
 
 # Ensure uploads directory exists before the app serves requests
 Path(__file__).resolve().parent.joinpath("data", "uploads").mkdir(parents=True, exist_ok=True)
@@ -41,6 +44,22 @@ app.add_middleware(
 app.include_router(documents.router, prefix="/api/documents", tags=["Documents"])
 app.include_router(search.router, prefix="/api/search", tags=["Search"])
 
+
+@app.middleware("http")
+async def add_request_id(request: Request, call_next):
+    """Attach a request id to every request so logs can be traced.
+
+    An incoming `X-Request-ID` header is propagated when present (optional,
+    for debugging); otherwise a fresh UUID is generated. The id is exposed on
+    request.state and echoed back on the `X-Request-ID` response header.
+    """
+    request_id = request.headers.get("x-request-id") or uuid.uuid4().hex
+    request.state.request_id = request_id
+    response = await call_next(request)
+    response.headers["X-Request-ID"] = request_id
+    return response
+
+
 # Define a simple root endpoint to verify the API status
 @app.get("/")
 async def root():
@@ -57,4 +76,11 @@ async def health():
 
 @app.get("/metrics", response_model=Metrics)
 async def get_metrics():
-    return Metrics()
+    return Metrics(
+        total_documents=indexing.cache.file_count(),
+        total_chunks=indexing.cache.total_chunks(),
+        total_queries=stats.queries_served,
+        cache_hits=stats.cache_hits,
+        cache_misses=stats.cache_misses,
+        error_counts=stats.get_error_counts(),
+    )
