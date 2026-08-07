@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, File, HTTPException, Request, UploadFile
 
 from backend.models.record import Document, DocumentStatus, IndexResult, IndexStatus, ReindexSummary
 from backend.services.indexing import SAMPLE_DOCS_DIR, UPLOADS_DIR, cache, index_document, vector_store
@@ -39,7 +39,8 @@ async def list_documents():
 
 
 @router.post("/upload", response_model=Document)
-async def upload_document(file: UploadFile = File(...)):
+async def upload_document(request: Request, file: UploadFile = File(...)):
+    request_id = getattr(request.state, "request_id", "-")
     filename = Path(file.filename or "").name or "upload.txt"
     if Path(filename).suffix.lower() not in SUPPORTED_EXTENSIONS:
         raise HTTPException(
@@ -53,24 +54,24 @@ async def upload_document(file: UploadFile = File(...)):
     try:
         contents = await file.read()
     except Exception as e:
-        logger.exception("Failed to read upload %s", filename)
+        logger.exception("upload request_id=%s file=%s failed to read", request_id, filename)
         raise HTTPException(status_code=400, detail=f"Failed to read upload: {e}")
 
     try:
         dest.write_bytes(contents)
     except OSError as e:
-        logger.exception("Failed to save upload %s", dest)
+        logger.exception("upload request_id=%s file=%s failed to save %s", request_id, filename, dest)
         raise HTTPException(status_code=500, detail=f"Failed to save upload: {e}")
 
     try:
         index_document(str(dest))
     except ValueError as e:
         dest.unlink(missing_ok=True)
-        logger.warning("Rejected upload %s: %s", dest, e)
+        logger.warning("upload request_id=%s file=%s rejected: %s", request_id, filename, e)
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         dest.unlink(missing_ok=True)
-        logger.exception("Indexing failed for %s", dest)
+        logger.exception("upload request_id=%s file=%s indexing failed", request_id, filename)
         raise HTTPException(status_code=500, detail=f"Indexing failed: {e}")
 
     meta = get_file_metadata(str(dest))
@@ -85,7 +86,8 @@ async def upload_document(file: UploadFile = File(...)):
 
 
 @router.post("/reindex", response_model=ReindexSummary)
-async def reindex_all():
+async def reindex_all(request: Request):
+    request_id = getattr(request.state, "request_id", "-")
     files = []
     for folder in (SAMPLE_DOCS_DIR, UPLOADS_DIR):
         if not folder.exists():
@@ -103,7 +105,7 @@ async def reindex_all():
             result = index_document(str(path))
             results.append(IndexResult(**result))
         except Exception as e:
-            logger.exception("Failed to index %s", path)
+            logger.exception("reindex request_id=%s failed to index %s", request_id, path)
             results.append(IndexResult(file=str(path), status="failed", error=str(e)))
 
     return ReindexSummary(
@@ -116,12 +118,19 @@ async def reindex_all():
 
 
 @router.delete("/{doc_id}")
-async def delete_document(doc_id: str):
+async def delete_document(request: Request, doc_id: str):
+    request_id = getattr(request.state, "request_id", "-")
     removed_vectors = vector_store.remove_document(doc_id)
     removed_cache = cache.remove_by_md5(doc_id)
     if removed_vectors == 0 and removed_cache == 0:
         raise HTTPException(status_code=404, detail=f"No document found with id {doc_id}")
-    logger.info("Deleted document %s (%d vectors, %d cache entries)", doc_id, removed_vectors, removed_cache)
+    logger.info(
+        "delete request_id=%s doc=%s removed (%d vectors, %d cache entries)",
+        request_id,
+        doc_id,
+        removed_vectors,
+        removed_cache,
+    )
     return {
         "message": f"Document {doc_id} deleted",
         "removed_vectors": removed_vectors,
