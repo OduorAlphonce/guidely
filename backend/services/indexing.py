@@ -5,6 +5,7 @@ from backend.services.cache import EmbeddingCache
 from backend.services.chunker import chunk_text
 from backend.services.embedder import Embedder
 from backend.services.parser import compute_md5, parse_file
+from backend.services.stats import stats
 from backend.services.vector_store import VectorStore
 
 logger = logging.getLogger(__name__)
@@ -31,6 +32,17 @@ def index_document(file_path: str) -> dict:
         logger.info("Skipping unchanged file %s (cache hit)", file_path)
         return {"file": file_path, "status": "skipped", "doc_id": md5, "chunks": 0}
 
+    try:
+        return _index_new(file_path, path, md5)
+    except Exception as e:
+        error_count = stats.record_error(f"indexing:{type(e).__name__}")
+        logger.exception(
+            "Indexing %s failed (error_count=%d)", file_path, error_count
+        )
+        raise
+
+
+def _index_new(file_path: str, path: Path, md5: str) -> dict:
     logger.info("Indexing %s (md5=%s)", file_path, md5)
 
     text = parse_file(file_path)

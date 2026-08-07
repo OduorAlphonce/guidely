@@ -7,6 +7,11 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_MODEL = "gpt-3.5-turbo"
 SYSTEM_PROMPT = "Answer concisely using only the provided context. Cite source file names."
+TIMEOUT_SECONDS = 30
+
+
+class LLMTimeoutError(Exception):
+    """Raised when the LLM call times out; callers should degrade gracefully."""
 
 
 def build_prompt(question: str, context: list[dict]) -> str:
@@ -23,7 +28,7 @@ class LLM:
         self._model = model
         api_key = os.getenv("OPENAI_API_KEY")
         if api_key:
-            self._client = openai.OpenAI(api_key=api_key)
+            self._client = openai.OpenAI(api_key=api_key, timeout=TIMEOUT_SECONDS)
         else:
             logger.warning("OPENAI_API_KEY not set; answer generation will fail until it is configured")
             self._client = None
@@ -38,13 +43,23 @@ class LLM:
                 "OPENAI_API_KEY is not set. Add it to the .env file before asking questions."
             )
         user_prompt = build_prompt(question, context)
-        response = self._client.chat.completions.create(
-            model=self._model,
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": user_prompt},
-            ],
-        )
+        try:
+            response = self._client.chat.completions.create(
+                model=self._model,
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": user_prompt},
+                ],
+            )
+        except openai.APITimeoutError as e:
+            logger.error(
+                "LLM call timed out after %s seconds (model=%s)",
+                TIMEOUT_SECONDS,
+                self._model,
+            )
+            raise LLMTimeoutError(
+                f"Answer model timed out after {TIMEOUT_SECONDS} seconds"
+            ) from e
         answer = response.choices[0].message.content or ""
         logger.info("Generated answer with model=%s", self._model)
         return answer

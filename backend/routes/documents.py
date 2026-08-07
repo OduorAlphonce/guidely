@@ -65,9 +65,11 @@ async def upload_document(file: UploadFile = File(...)):
     try:
         index_document(str(dest))
     except ValueError as e:
+        dest.unlink(missing_ok=True)
         logger.warning("Rejected upload %s: %s", dest, e)
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
+        dest.unlink(missing_ok=True)
         logger.exception("Indexing failed for %s", dest)
         raise HTTPException(status_code=500, detail=f"Indexing failed: {e}")
 

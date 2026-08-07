@@ -5,6 +5,8 @@ import threading
 from datetime import datetime
 from pathlib import Path
 
+from backend.services.stats import stats
+
 logger = logging.getLogger(__name__)
 
 DEFAULT_CACHE_PATH = str(Path(__file__).resolve().parent.parent / "data" / "embedding_cache.json")
@@ -24,9 +26,19 @@ class EmbeddingCache:
         self.load()
 
     def needs_update(self, file_path: str, current_md5: str) -> bool:
-        """Return True when the file has no cached entry or its content changed."""
+        """Return True when the file has no cached entry or its content changed.
+
+        Records and logs an embedding-cache hit/miss so re-indexing behaviour
+        is visible in uvicorn output (Day 4, issue #28).
+        """
         entry = self._data["files"].get(self._normalize_path(file_path))
-        return entry is None or entry.get("md5") != current_md5
+        if entry is not None and entry.get("md5") == current_md5:
+            hits = stats.record_cache_hit()
+            logger.info("embedding cache hit file=%s hits=%d", file_path, hits)
+            return False
+        misses = stats.record_cache_miss()
+        logger.info("embedding cache miss file=%s misses=%d", file_path, misses)
+        return True
 
     def mark_indexed(self, file_path: str, md5: str, chunks: list[dict] | None = None) -> None:
         """Record that a file was indexed, along with its chunks/embeddings."""
