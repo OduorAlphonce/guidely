@@ -46,16 +46,16 @@
 - [x] Test Q&A flow end-to-end
 
 ## Day 4 – Error Handling, Logging & Metrics
-- [ ] Handle edge cases:
+- [x] Handle edge cases:
   - Empty query → 400 with clear message
   - Missing API key → 500 with actionable error
   - Corrupted/empty file → 400 per file
   - No results found → graceful response ("I couldn't find relevant docs")
   - LLM timeout → fallback response with retrieved snippets
-- [ ] Auto-log: latency, cache hits/misses, error types/counts
-- [ ] Build `GET /metrics` JSON endpoint: doc count, chunk count, queries served, error stats
-- [ ] Add request-id tracking for debugging
-- [ ] Write **unit tests** for parsing, chunking, embedding, search
+- [x] Auto-log: latency, cache hits/misses, error types/counts
+- [x] Build `GET /metrics` JSON endpoint: doc count, chunk count, queries served, error stats
+- [x] Add request-id tracking for debugging
+- [x] Write **unit tests** for parsing, chunking, embedding, search
 
 ## Day 5 – Frontend Setup & Search Page
 - [ ] Scaffold **React/Vite** project under `frontend/`
