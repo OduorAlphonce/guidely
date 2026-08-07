@@ -1,7 +1,7 @@
 import logging
 import time
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 
 from backend.models.record import Answer, Query, SourceRef
 from backend.services.llm import LLMTimeoutError, llm
@@ -43,12 +43,13 @@ def _timeout_fallback_answer(chunks: list[dict]) -> str:
 
 
 @router.post("/", response_model=Answer)
-async def search(query: Query):
+async def search(query: Query, request: Request):
     request_start = time.perf_counter()
+    request_id = getattr(request.state, "request_id", "-")
     stats.record_query()
 
     if not query.question.strip():
-        logger.warning("Rejected empty question")
+        logger.warning("search request_id=%s status=rejected_empty_question", request_id)
         raise HTTPException(status_code=400, detail="Question must not be empty.")
 
     retrieve_start = time.perf_counter()
@@ -58,8 +59,9 @@ async def search(query: Query):
     if not chunks:
         total_ms = _ms(request_start)
         logger.info(
-            "search request question=%r total_ms=%.2f retrieval_ms=%.2f "
+            "search request_id=%s question=%r total_ms=%.2f retrieval_ms=%.2f "
             "llm_ms=0.00 sources=0 model=n/a status=no_results",
+            request_id,
             query.question,
             total_ms,
             retrieval_ms,
@@ -82,8 +84,9 @@ async def search(query: Query):
             for c in chunks
         ]
         logger.warning(
-            "search request question=%r total_ms=%.2f retrieval_ms=%.2f "
+            "search request_id=%s question=%r total_ms=%.2f retrieval_ms=%.2f "
             "status=llm_timeout sources=%d error_count=%d",
+            request_id,
             query.question,
             total_ms,
             retrieval_ms,
@@ -100,8 +103,9 @@ async def search(query: Query):
         total_ms = _ms(request_start)
         error_count = stats.record_error(f"search:{type(e).__name__}")
         logger.error(
-            "search request question=%r total_ms=%.2f retrieval_ms=%.2f "
+            "search request_id=%s question=%r total_ms=%.2f retrieval_ms=%.2f "
             "status=error error=%s error_count=%d",
+            request_id,
             query.question,
             total_ms,
             retrieval_ms,
@@ -113,8 +117,9 @@ async def search(query: Query):
         total_ms = _ms(request_start)
         error_count = stats.record_error(f"search:{type(e).__name__}")
         logger.exception(
-            "search request question=%r total_ms=%.2f retrieval_ms=%.2f "
+            "search request_id=%s question=%r total_ms=%.2f retrieval_ms=%.2f "
             "status=error error=%s error_count=%d",
+            request_id,
             query.question,
             total_ms,
             retrieval_ms,
@@ -131,8 +136,9 @@ async def search(query: Query):
 
     total_ms = _ms(request_start)
     logger.info(
-        "search request question=%r total_ms=%.2f retrieval_ms=%.2f llm_ms=%.2f "
+        "search request_id=%s question=%r total_ms=%.2f retrieval_ms=%.2f llm_ms=%.2f "
         "sources=%d model=%s status=ok",
+        request_id,
         query.question,
         total_ms,
         retrieval_ms,
