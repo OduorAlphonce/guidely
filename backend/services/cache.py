@@ -90,6 +90,11 @@ class EmbeddingCache:
     def file_count(self) -> int:
         return len(self._data["files"])
 
+    def total_chunks(self) -> int:
+        """Return the total number of cached chunks across every indexed file."""
+        with self._lock:
+            return sum(len(entry.get("chunks") or []) for entry in self._data["files"].values())
+
     def save(self) -> None:
         with self._lock:
             payload = json.dumps(self._data, indent=2)
