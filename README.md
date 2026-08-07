@@ -54,6 +54,68 @@ Ask Question ──► Embed Query ──► FAISS Search ──► Top-k Chunks
                                           {answer, sources[snippet, file]}
 ```
 
+## Running the Backend
+
+### 1. Set up the environment
+
+```bash
+# Create and activate a virtual environment
+python3 -m venv backend/.venv
+source backend/.venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### 2. Configure `.env`
+
+Create a `.env` file in the repo root (a template already ships as `.env`):
+
+```
+# Optional — without a key the embedder falls back to a local
+# sentence-transformers model and answer generation is disabled.
+OPENAI_API_KEY=sk-...
+```
+
+> Note: the key is read once at startup, so restart the server after changing it.
+
+### 3. Run the API
+
+```bash
+# From the repo root
+backend/.venv/bin/python -m uvicorn backend.main:app --reload
+```
+
+The API is then available at:
+
+- Interactive docs: http://localhost:8000/docs
+- Health check: `curl http://localhost:8000/health`
+- Metrics: `curl http://localhost:8000/metrics`
+- Root: `curl http://localhost:8000/`
+
+### 4. Useful endpoint calls
+
+```bash
+# Index the sample documents (and anything in data/uploads)
+curl -X POST http://localhost:8000/api/documents/reindex
+
+# Ask a question
+curl -X POST http://localhost:8000/api/search \
+  -H "Content-Type: application/json" \
+  -d '{"question": "How many remote work days per week are allowed?"}'
+```
+
+### 5. Run the tests
+
+Each suite is a standalone script run from the repo root (all pass without an OpenAI API key):
+
+```bash
+for t in test_llm test_parser test_chunker test_embedder test_search \
+         test_retrieval test_indexing test_day4 test_metrics; do
+  backend/.venv/bin/python "backend/tests/$t.py"
+done
+```
+
 ## Metrics
 
 Measured by running `python backend/tests/test_indexing.py` (sentence-transformers fallback, CPU). Artifacts written to `backend/data/`.
@@ -89,13 +151,25 @@ guidely/
 │   ├── models/
 │   │   └── record.py        # Pydantic data models
 │   ├── services/
-│   │   ├── parser.py        # File parsing (txt, md, pdf)
+│   │   ├── parser.py        # File parsing (txt, md)
 │   │   ├── chunker.py       # Token-aware text chunking
 │   │   ├── embedder.py      # Embedding generation
 │   │   ├── indexing.py      # Indexing pipeline orchestration
-│   │   └── retriever.py     # Vector search + LLM
+│   │   ├── retrieval.py     # Vector search + LLM
+│   │   ├── cache.py         # Embedding cache (skip unchanged files)
+│   │   ├── vector_store.py  # FAISS persistence
+│   │   ├── llm.py           # OpenAI answer generation
+│   │   └── stats.py         # Metrics counters
 │   ├── tests/
-│   │   └── test_indexing.py # End-to-end indexing verification
+│   │   ├── test_parser.py       # Parser unit tests
+│   │   ├── test_chunker.py      # Chunker unit tests
+│   │   ├── test_embedder.py     # Embedder unit tests
+│   │   ├── test_search.py       # Search endpoint tests
+│   │   ├── test_retrieval.py    # Retrieval verification
+│   │   ├── test_indexing.py     # Indexing verification
+│   │   ├── test_llm.py          # LLM service tests
+│   │   ├── test_day4.py         # Edge cases, logging, stats
+│   │   └── test_metrics.py      # /metrics + request-id tests
 │   └── data/sample-docs/    # 5 sample documents
 ├── requirements.txt
 ├── plan.md

@@ -174,6 +174,37 @@ def test_empty_question_rejected():
     check("returns HTTP 422 when question is missing", resp.status_code == 422)
 
 
+def test_endpoint_validation_and_shape():
+    print("\nTest 3b: Endpoint validation and response shape")
+    search_route.retrieve = lambda question, k=5: sample_chunks()
+    search_route.llm = FakeLLM()
+
+    resp = CLIENT.post("/api/search/", json={"question": "How many remote days?"})
+    check("returns HTTP 200", resp.status_code == 200)
+    body = resp.json()
+    check("response has exactly the Answer fields",
+          set(body) == {"question", "answer", "sources", "latency_ms"})
+    check("question is a string", isinstance(body["question"], str))
+    check("answer is a string", isinstance(body["answer"], str))
+    check("latency_ms is numeric", isinstance(body["latency_ms"], (int, float)))
+    check("sources is a list", isinstance(body["sources"], list))
+    check("every source has exactly file/snippet/score",
+          all(set(s) == {"file", "snippet", "score"} for s in body["sources"]))
+    check("every source file is a string", all(isinstance(s["file"], str) for s in body["sources"]))
+    check("every source snippet is a string", all(isinstance(s["snippet"], str) for s in body["sources"]))
+    check("every source score is a float", all(isinstance(s["score"], float) for s in body["sources"]))
+
+    for bad in (123, ["question"], {"nested": "query"}, 3.14, None):
+        resp = CLIENT.post("/api/search/", json={"question": bad})
+        check(f"non-string question {bad!r} is rejected with 422", resp.status_code == 422)
+
+    resp = CLIENT.post("/api/search/", json={"question": "ok?", "ignored": "extra"})
+    check("extra request fields are ignored (200)", resp.status_code == 200)
+
+    resp = CLIENT.post("/api/search/", json={"question": "\n \t "})
+    check("whitespace-only question is rejected with 400", resp.status_code == 400)
+
+
 def test_missing_api_key_is_actionable():
     print("\nTest 4: Missing OPENAI_API_KEY -> actionable 500")
     search_route.retrieve = lambda question, k=5: sample_chunks()
@@ -283,6 +314,7 @@ def main():
     test_success_with_mocked_llm()
     test_no_results_message()
     test_empty_question_rejected()
+    test_endpoint_validation_and_shape()
     test_missing_api_key_is_actionable()
     test_end_to_end_retrieval()
     test_latency_is_logged()
