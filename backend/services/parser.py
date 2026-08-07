@@ -18,7 +18,10 @@ def parse_file(file_path: str) -> str:
     if path.stat().st_size == 0:
         raise ValueError(f"File is empty: {file_path}")
 
-    return path.read_text(encoding="utf-8")
+    try:
+        return path.read_text(encoding="utf-8")
+    except UnicodeDecodeError as e:
+        raise ValueError(f"Corrupted file (not valid UTF-8 text): {file_path}") from e
 
 
 def compute_md5(file_path: str) -> str:
