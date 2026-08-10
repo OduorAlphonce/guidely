@@ -16,6 +16,25 @@ body {
   padding: 3rem 1.5rem;
 }
 
+.nav {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #d7dee8;
+}
+
+.nav-link {
+  padding: 0.5rem 0.25rem;
+  text-decoration: none;
+  color: #5b6b7c;
+  border-bottom: 2px solid transparent;
+}
+
+.nav-link.active {
+  color: #213547;
+  border-bottom-color: #3b82f6;
+}
+
 .app h1 {
   margin: 0 0 0.5rem;
   font-size: 2.5rem;
