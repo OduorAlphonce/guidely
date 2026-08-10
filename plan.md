@@ -58,7 +58,7 @@
 - [x] Write **unit tests** for parsing, chunking, embedding, search
 
 ## Day 5 – Frontend Setup & Search Page
-- [ ] Scaffold **React/Vite** project under `frontend/`
+- [x] Scaffold **React/Vite** project under `frontend/`
 - [ ] Add routing (`react-router-dom`): `/` (search), `/admin`
 - [ ] Build **SearchPage**:
   - Question input (text area + submit button)
