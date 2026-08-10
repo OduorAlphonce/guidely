@@ -59,7 +59,7 @@
 
 ## Day 5 – Frontend Setup & Search Page
 - [x] Scaffold **React/Vite** project under `frontend/`
-- [ ] Add routing (`react-router-dom`): `/` (search), `/admin`
+- [x] Add routing (`react-router-dom`): `/` (search), `/admin`
 - [ ] Build **SearchPage**:
   - Question input (text area + submit button)
   - Answer display area (rendered markdown or plain text)
