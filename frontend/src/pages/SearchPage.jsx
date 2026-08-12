@@ -1,42 +1,32 @@
 import { useState } from 'react'
 import SourceCard from '../components/SourceCard.jsx'
-
-const SAMPLE_RESULT = {
-  answer:
-    'Full-time employees in good standing are eligible for remote work up to 4 days per week with manager approval. Core hours are 10 AM - 3 PM ET, Monday through Friday, and employees must be available via Slack or phone during core hours.',
-  sources: [
-    {
-      file: 'policy.txt',
-      score: 0.92,
-      snippet:
-        'All full-time employees in good standing are eligible for remote work up to 4 days per week. Manager approval is required for any arrangement exceeding this limit. Part-time employees may request a prorated schedule.',
-      text: '1. Eligibility\nAll full-time employees in good standing are eligible for remote work up to 4 days per week. Manager approval is required for any arrangement exceeding this limit. Part-time employees may request a prorated schedule. Contractors and interns require explicit VP-level approval.',
-    },
-    {
-      file: 'policy.txt',
-      score: 0.88,
-      snippet:
-        'Core hours are 10 AM - 3 PM ET, Monday through Friday. Employees must be available via Slack or phone during core hours. Outside of core hours, teams have flexibility to set their own schedules.',
-      text: '3. Work Hours and Availability\nCore hours are 10 AM - 3 PM ET, Monday through Friday. Employees must be available via Slack or phone during core hours. Outside of core hours, teams have flexibility to set their own schedules as long as business needs are met. Overtime must be pre-approved by your manager.',
-    },
-    {
-      file: 'faq.txt',
-      score: 0.81,
-      snippet:
-        'Q: How do I enroll in health insurance? A: New hires must enroll within 30 days of their start date. Open enrollment runs annually from November 1-30.',
-      text: 'HR FAQs\nQ: How do I enroll in health insurance?\nA: New hires must enroll within 30 days of their start date. Open enrollment runs annually from November 1-30. Visit the benefits portal at benefits.company.com to make changes. Coverage typically begins on the first of the month following enrollment.',
-    },
-  ],
-}
+import { searchDocuments } from '../api/search.js'
 
 export default function SearchPage() {
   const [question, setQuestion] = useState('')
   const [result, setResult] = useState(null)
+  const [isSearching, setIsSearching] = useState(false)
+  const [error, setError] = useState(null)
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault()
-    if (!question.trim()) return
-    setResult(SAMPLE_RESULT)
+    const trimmed = question.trim()
+    if (!trimmed) return
+
+    setIsSearching(true)
+    setError(null)
+    try {
+      const data = await searchDocuments(trimmed)
+      setResult({
+        answer: data.answer,
+        sources: data.sources,
+        latencyMs: data.latency_ms,
+      })
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setIsSearching(false)
+    }
   }
 
   return (
@@ -54,15 +44,28 @@ export default function SearchPage() {
           onChange={(event) => setQuestion(event.target.value)}
           placeholder="e.g. How many remote days do I get?"
         />
-        <button type="submit" className="search-submit" disabled={!question.trim()}>
-          Ask
+        <button
+          type="submit"
+          className="search-submit"
+          disabled={!question.trim() || isSearching}
+        >
+          {isSearching ? 'Searching…' : 'Ask'}
         </button>
       </form>
+
+      {error && (
+        <p className="search-error" role="alert">
+          {error}
+        </p>
+      )}
 
       {result && (
         <div className="search-result">
           <h2>Answer</h2>
           <p className="answer">{result.answer}</p>
+          {result.latencyMs != null && (
+            <p className="answer-meta">Answered in {(result.latencyMs / 1000).toFixed(2)}s</p>
+          )}
 
           <h2>Sources</h2>
           <div className="sources-list">

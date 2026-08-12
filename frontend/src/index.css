@@ -91,6 +91,21 @@ body {
   white-space: pre-line;
 }
 
+.answer-meta {
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+  color: #5b6b7c;
+}
+
+.search-error {
+  margin: 1rem 0;
+  padding: 0.75rem 1rem;
+  color: #b91c1c;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+}
+
 .sources-list {
   display: flex;
   flex-direction: column;
