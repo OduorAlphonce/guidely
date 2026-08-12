@@ -39,3 +39,101 @@ body {
   margin: 0 0 0.5rem;
   font-size: 2.5rem;
 }
+
+.search-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+}
+
+.search-form-label {
+  font-weight: 600;
+  color: #213547;
+}
+
+.search-form textarea {
+  padding: 0.75rem;
+  font: inherit;
+  border: 1px solid #d7dee8;
+  border-radius: 6px;
+  resize: vertical;
+}
+
+.search-submit {
+  align-self: flex-start;
+  padding: 0.6rem 1.5rem;
+  font: inherit;
+  font-weight: 600;
+  color: #fff;
+  background-color: #3b82f6;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.search-submit:disabled {
+  background-color: #b3c3d6;
+  cursor: not-allowed;
+}
+
+.search-result h2 {
+  margin: 2rem 0 0.5rem;
+  font-size: 1.25rem;
+}
+
+.answer {
+  margin: 0;
+  padding: 1rem;
+  background-color: #ffffff;
+  border: 1px solid #d7dee8;
+  border-radius: 8px;
+  white-space: pre-line;
+}
+
+.sources-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.source-card {
+  background-color: #ffffff;
+  border: 1px solid #d7dee8;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+}
+
+.source-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.source-card-file {
+  font-weight: 600;
+  color: #213547;
+}
+
+.source-card-score {
+  margin-left: auto;
+  font-size: 0.85rem;
+  color: #5b6b7c;
+}
+
+.source-card-toggle {
+  padding: 0.25rem 0.5rem;
+  font: inherit;
+  font-size: 0.85rem;
+  color: #3b82f6;
+  background: none;
+  border: 1px solid #3b82f6;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.source-card-snippet {
+  margin: 0.5rem 0 0;
+  color: #5b6b7c;
+  white-space: pre-line;
+}
