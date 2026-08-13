@@ -6,12 +6,15 @@ export default function App() {
   return (
     <div className="app">
       <nav className="nav">
-        <NavLink to="/" end className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
-          Search
-        </NavLink>
-        <NavLink to="/admin" className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
-          Admin
-        </NavLink>
+        <span className="nav-brand">Guidely</span>
+        <div className="nav-links">
+          <NavLink to="/" end className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
+            Search
+          </NavLink>
+          <NavLink to="/admin" className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
+            Admin
+          </NavLink>
+        </div>
       </nav>
       <Routes>
         <Route path="/" element={<SearchPage />} />
