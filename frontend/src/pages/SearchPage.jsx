@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import SourceCard from '../components/SourceCard.jsx'
+import LoadingSpinner from '../components/LoadingSpinner.jsx'
 import { searchDocuments } from '../api/search.js'
 
 export default function SearchPage() {
@@ -15,6 +16,7 @@ export default function SearchPage() {
 
     setIsSearching(true)
     setError(null)
+    setResult(null)
     try {
       const data = await searchDocuments(trimmed)
       setResult({
@@ -23,16 +25,19 @@ export default function SearchPage() {
         latencyMs: data.latency_ms,
       })
     } catch (err) {
-      setError(err.message)
+      setError(err.message || 'Something went wrong. Please try again.')
     } finally {
       setIsSearching(false)
     }
   }
 
   return (
-    <section>
-      <h1>Search</h1>
-      <p>Ask a question and get answers cited from your documents.</p>
+    <section className="page">
+      <header className="page-header">
+        <h1>Search</h1>
+        <p>Ask a question and get answers cited from your documents.</p>
+      </header>
+
       <form className="search-form" onSubmit={handleSubmit}>
         <label className="search-form-label" htmlFor="question">
           Your question
@@ -53,13 +58,29 @@ export default function SearchPage() {
         </button>
       </form>
 
-      {error && (
-        <p className="search-error" role="alert">
-          {error}
-        </p>
+      {isSearching && <LoadingSpinner label="Searching your documents…" />}
+
+      {!isSearching && !result && !error && (
+        <div className="search-empty">
+          <span className="search-empty-title">Ready when you are</span>
+          <p className="search-empty-text">
+            Ask a question above and you will get an answer with the documents it was
+            based on.
+          </p>
+        </div>
       )}
 
-      {result && (
+      {error && (
+        <div className="search-error" role="alert">
+          <h2>Sorry, that did not work</h2>
+          <p>{error}</p>
+          <button type="button" className="search-error-dismiss" onClick={() => setError(null)}>
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {!isSearching && result && (
         <div className="search-result">
           <h2>Answer</h2>
           <p className="answer">{result.answer}</p>
