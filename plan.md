@@ -69,15 +69,15 @@
 - [ ] Style with a clean, minimal design (Tailwind or plain CSS)
 
 ## Day 6 – Admin Page & Document Management
-- [x] Build **AdminPage**:
+- [ ] Build **AdminPage**:
   - Document list (table with name, size, last indexed, status)
   - Upload button → file picker → upload to backend
   - Inline editor for text documents
   - Delete button per document
   - "Re-index All" button with progress indicator
-- [x] Connect to document CRUD endpoints
-- [x] Show indexing status (pending/indexing/done/error)
-- [x] Polish overall UI responsiveness
+- [ ] Connect to document CRUD endpoints
+- [ ] Show indexing status (pending/indexing/done/error)
+- [ ] Polish overall UI responsiveness
 
 ## Day 7 – Integration & Polish
 - [ ] End-to-end integration test (upload → search → verify answer + sources)
