@@ -1,7 +1,24 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import SourceCard from '../components/SourceCard.jsx'
 import LoadingSpinner from '../components/LoadingSpinner.jsx'
 import { searchDocuments } from '../api/search.js'
+
+function highlightSources(answer, sources) {
+  if (!sources.length) return answer
+  const filenames = sources.map((s) => s.file)
+  const pattern = new RegExp(
+    `\\b(${filenames.map((f) => f.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})\\b`,
+    'g',
+  )
+  const parts = answer.split(pattern)
+  return parts.map((part, i) =>
+    filenames.includes(part) ? (
+      <mark key={i} className="answer-source-ref">{part}</mark>
+    ) : (
+      part
+    ),
+  )
+}
 
 export default function SearchPage() {
   const [question, setQuestion] = useState('')
@@ -30,6 +47,11 @@ export default function SearchPage() {
       setIsSearching(false)
     }
   }
+
+  const answerNodes = useMemo(() => {
+    if (!result) return null
+    return highlightSources(result.answer, result.sources)
+  }, [result])
 
   return (
     <section className="page">
@@ -83,15 +105,15 @@ export default function SearchPage() {
       {!isSearching && result && (
         <div className="search-result">
           <h2>Answer</h2>
-          <p className="answer">{result.answer}</p>
+          <p className="answer">{answerNodes}</p>
           {result.latencyMs != null && (
             <p className="answer-meta">Answered in {(result.latencyMs / 1000).toFixed(2)}s</p>
           )}
 
-          <h2>Sources</h2>
+          <h2>Sources ({result.sources.length})</h2>
           <div className="sources-list">
             {result.sources.map((source, index) => (
-              <SourceCard key={`${source.file}-${index}`} source={source} />
+              <SourceCard key={`${source.file}-${index}`} source={source} rank={index + 1} />
             ))}
           </div>
         </div>

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-export default function SourceCard({ source }) {
+export default function SourceCard({ source, rank }) {
   const [expanded, setExpanded] = useState(false)
   const { file, snippet, score, text } = source
   const detail = text ?? snippet
@@ -8,6 +8,9 @@ export default function SourceCard({ source }) {
   return (
     <article className="source-card">
       <header className="source-card-header">
+        {typeof rank === 'number' && (
+          <span className="source-card-rank">{rank}</span>
+        )}
         <span className="source-card-file" title={file}>
           {file}
         </span>
