@@ -80,11 +80,11 @@
 - [x] Polish overall UI responsiveness
 
 ## Day 7 – Integration & Polish
-- [ ] End-to-end integration test (upload → search → verify answer + sources)
-- [ ] Prepare **15–20 test queries** with known answers from sample docs
-- [ ] Tune chunk size (500 vs 800 vs 1000 tokens) and top-k (3 vs 5 vs 7)
-- [ ] Ensure Retrieval@k ≥ 80%
-- [ ] Polish: source highlighting in answer, ranked snippet display, mobile-friendly layout
+- [x] End-to-end integration test (upload → search → verify answer + sources)
+- [x] Prepare **15–20 test queries** with known answers from sample docs
+- [x] Tune chunk size (500 vs 800 vs 1000 tokens) and top-k (3 vs 5 vs 7)
+- [x] Ensure Retrieval@k ≥ 80%
+- [x] Polish: source highlighting in answer, ranked snippet display, mobile-friendly layout
 
 ## Day 8 – Validation & Metrics
 - [ ] Run all checks from the spec **Testing & Metrics** table:
