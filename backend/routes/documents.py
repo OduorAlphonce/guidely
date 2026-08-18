@@ -117,6 +117,22 @@ async def reindex_all(request: Request):
     )
 
 
+@router.get("/{doc_id}/content")
+async def get_document_content(request: Request, doc_id: str):
+    request_id = getattr(request.state, "request_id", "-")
+    for path_key, entry in cache.list_files().items():
+        if entry.get("md5") == doc_id:
+            path = Path(path_key)
+            if not path.exists():
+                raise HTTPException(status_code=404, detail="File not found on disk")
+            try:
+                content = path.read_text(encoding="utf-8")
+            except UnicodeDecodeError:
+                content = path.read_bytes().decode("latin-1")
+            return {"content": content, "filename": path.name}
+    raise HTTPException(status_code=404, detail=f"No document found with id {doc_id}")
+
+
 @router.delete("/{doc_id}")
 async def delete_document(request: Request, doc_id: str):
     request_id = getattr(request.state, "request_id", "-")
