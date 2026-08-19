@@ -43,8 +43,10 @@ watchfiles==1.2.0
 websockets==16.1.1
 
 # Guidely specific dependencies
+torch==2.13.0
 openai==1.58.1
 tiktoken==0.9.0
 faiss-cpu==1.12.0
 numpy==2.2.4
+sentence-transformers==3.4.1
 pypdf2==3.0.1
