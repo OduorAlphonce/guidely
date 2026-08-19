@@ -6,7 +6,7 @@ export default function App() {
   return (
     <div className="app">
       <nav className="nav">
-        <span className="nav-brand">Guidely</span>
+        <span className="nav-brand">Mwongozo</span>
         <div className="nav-links">
           <NavLink to="/" end className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
             Search
