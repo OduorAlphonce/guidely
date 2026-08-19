@@ -102,19 +102,19 @@
 - [x] Fix any failures found
 
 ## Day 9 – README, Documentation & Bonus Features
-- [ ] Write comprehensive **README.md**:
+- [x] Write comprehensive **README.md**:
   - Project purpose and architecture diagram
   - Dataset description
   - Setup instructions (clone, `.env`, `pip install`, `npm install`)
   - How the pipeline works (text → chunks → embeddings → search → LLM → answer)
   - Metrics results table (populated from Day 8)
   - Project structure tree
-- [ ] **Bonus features** (time permitting):
-  - Conversation history for follow-up questions
-  - Tags/categories for documents + filter in UI
-  - Query log export (CSV with timestamp, latency, sourced docs)
-  - Roles (reader vs admin) — basic auth
-- [ ] Final commit with meaningful message
+- [x] **Bonus features** (time permitting):
+  - [x] Tags/categories for documents + filter in UI
+  - [x] Query log export (CSV with timestamp, latency, sourced docs)
+  - [ ] Conversation history for follow-up questions
+  - [ ] Roles (reader vs admin) — basic auth
+- [x] Final commit with meaningful message
 
 ---
 
