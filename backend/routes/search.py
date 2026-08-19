@@ -2,9 +2,11 @@ import logging
 import time
 
 from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import PlainTextResponse
 
 from backend.models.record import Answer, Query, SourceRef
 from backend.services.llm import LLMTimeoutError, llm
+from backend.services.query_log import query_log
 from backend.services.retrieval import retrieve
 from backend.services.stats import stats
 
@@ -66,6 +68,13 @@ async def search(query: Query, request: Request):
             total_ms,
             retrieval_ms,
         )
+        query_log.record(
+            question=query.question,
+            answer=NO_RESULTS_MESSAGE,
+            sources=[],
+            latency_ms=total_ms,
+            status="no_results",
+        )
         return Answer(
             question=query.question,
             answer=NO_RESULTS_MESSAGE,
@@ -92,6 +101,13 @@ async def search(query: Query, request: Request):
             retrieval_ms,
             len(sources),
             error_count,
+        )
+        query_log.record(
+            question=query.question,
+            answer=_timeout_fallback_answer(chunks),
+            sources=[s.file for s in sources],
+            latency_ms=total_ms,
+            status="llm_timeout",
         )
         return Answer(
             question=query.question,
@@ -146,9 +162,35 @@ async def search(query: Query, request: Request):
         len(sources),
         llm.model,
     )
+    query_log.record(
+        question=query.question,
+        answer=answer_text,
+        sources=[s.file for s in sources],
+        latency_ms=total_ms,
+        status="ok",
+    )
     return Answer(
         question=query.question,
         answer=answer_text,
         sources=sources,
         latency_ms=total_ms,
+    )
+
+
+@router.get("/log")
+async def get_query_log():
+    """Return the query log as JSON."""
+    return {"entries": query_log.entries(), "count": query_log.count()}
+
+
+@router.get("/log/export")
+async def export_query_log():
+    """Export the query log as a CSV download."""
+    csv_content = query_log.export_csv()
+    if not csv_content:
+        raise HTTPException(status_code=404, detail="No query log entries to export.")
+    return PlainTextResponse(
+        content=csv_content,
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=query_log.csv"},
     )
