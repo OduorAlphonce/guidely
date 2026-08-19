@@ -1,0 +1,16 @@
+{
+  "passed": 10,
+  "failed": 0,
+  "failures": [],
+  "metrics": {
+    "retrieval_at3": "100%",
+    "answer_coverage": "100%",
+    "latency_median_ms": "13.4",
+    "latency_p95_ms": "17.0",
+    "cache_hit_rate": "100%",
+    "failure_handling": "83%",
+    "source_precision": "100%",
+    "first_index_time_s": "2.29",
+    "cache_skip_rate": "100%"
+  }
+}
