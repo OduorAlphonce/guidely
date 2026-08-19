@@ -1,5 +1,6 @@
 # backend/main.py
 import logging
+import os
 import uuid
 from pathlib import Path
 
@@ -21,6 +22,27 @@ from backend.services.stats import stats
 
 # Ensure uploads directory exists before the app serves requests
 Path(__file__).resolve().parent.joinpath("data", "uploads").mkdir(parents=True, exist_ok=True)
+
+# Initialize the core FastAPI application
+app = FastAPI(
+    title="Mwongozo API",
+    description="Backend service for searching and managing guidance documents",
+    version="1.0.0"
+)
+
+# Configure CORS — allow the Vercel frontend and local dev
+ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv("ALLOWED_ORIGINS", "http://localhost:5173").split(",")
+    if origin.strip()
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.on_event("startup")
@@ -44,37 +66,14 @@ def auto_index():
                 except Exception as e:
                     logger.warning("auto-index: failed %s: %s", path.name, e)
 
-# Initialize the core FastAPI application
-app = FastAPI(
-    title="Guidely API",
-    description="Backend service for searching and managing guidance documents",
-    version="1.0.0"
-)
-
-# Configure CORS (Cross-Origin Resource Sharing)
-# This allows your frontend (App.jsx) to make API requests to this backend securely
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with your exact frontend URL (e.g., ["http://localhost:5173"])
-    allow_credentials=True,
-    allow_methods=["*"],  # Allows all HTTP methods (GET, POST, PUT, DELETE, etc.)
-    allow_headers=["*"],  # Allows all HTTP headers
-)
 
 # Connect your sub-routers to the main application
-# This prefixes all routes inside those files cleanly
 app.include_router(documents.router, prefix="/api/documents", tags=["Documents"])
 app.include_router(search.router, prefix="/api/search", tags=["Search"])
 
 
 @app.middleware("http")
 async def add_request_id(request: Request, call_next):
-    """Attach a request id to every request so logs can be traced.
-
-    An incoming `X-Request-ID` header is propagated when present (optional,
-    for debugging); otherwise a fresh UUID is generated. The id is exposed on
-    request.state and echoed back on the `X-Request-ID` response header.
-    """
     request_id = request.headers.get("x-request-id") or uuid.uuid4().hex
     request.state.request_id = request_id
     response = await call_next(request)
@@ -82,12 +81,11 @@ async def add_request_id(request: Request, call_next):
     return response
 
 
-# Define a simple root endpoint to verify the API status
 @app.get("/")
 async def root():
     return {
         "status": "online",
-        "message": "Welcome to the Guidely API. Visit /docs for interactive documentation."
+        "message": "Welcome to the Mwongozo API. Visit /docs for interactive documentation."
     }
 
 
