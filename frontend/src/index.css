@@ -252,6 +252,16 @@ body {
   gap: 0.75rem;
 }
 
+/* Source highlighting in answer */
+.answer-source-ref {
+  background-color: rgba(59, 130, 246, 0.12);
+  color: var(--color-accent-dark);
+  font-weight: 600;
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
 /* Source cards */
 .source-card {
   background-color: var(--color-surface);
@@ -272,6 +282,20 @@ body {
   align-items: center;
   flex-wrap: wrap;
   gap: 0.6rem;
+}
+
+.source-card-rank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+  background-color: var(--color-accent);
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .source-card-file {
@@ -346,12 +370,33 @@ body {
     font-size: 1.6rem;
   }
 
+  .search-form {
+    padding: 1rem;
+  }
+
+  .search-form textarea {
+    min-height: 80px;
+    font-size: 16px;
+  }
+
   .search-submit {
     width: 100%;
   }
 
+  .source-card {
+    padding: 0.65rem 0.75rem;
+  }
+
+  .source-card-header {
+    gap: 0.4rem;
+  }
+
   .source-card-score {
     margin-left: 0;
+  }
+
+  .source-card-toggle {
+    font-size: 0.8rem;
   }
 
   .admin-toolbar {
@@ -366,5 +411,16 @@ body {
   .admin-table th:nth-child(2),
   .admin-table td:nth-child(2) {
     display: none;
+  }
+
+  .modal {
+    max-width: 100%;
+    max-height: 90vh;
+    margin: 0.5rem;
+  }
+
+  .modal-editor {
+    min-height: 200px;
+    font-size: 0.8rem;
   }
 }

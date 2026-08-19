@@ -111,10 +111,40 @@ Each suite is a standalone script run from the repo root (all pass without an Op
 
 ```bash
 for t in test_llm test_parser test_chunker test_embedder test_search \
-         test_retrieval test_indexing test_day4 test_metrics; do
+         test_retrieval test_indexing test_day4 test_metrics test_integration; do
   backend/.venv/bin/python "backend/tests/$t.py"
 done
 ```
+
+## Running the Frontend
+
+The frontend is a React + Vite app that proxies API requests to the backend at `localhost:8000`.
+
+### 1. Install dependencies
+
+```bash
+cd frontend
+npm install
+```
+
+### 2. Start the dev server
+
+Make sure the backend is already running on port 8000, then:
+
+```bash
+npm run dev
+```
+
+The frontend opens at http://localhost:5173. It automatically proxies `/api/*` requests to the backend.
+
+### 3. Build for production
+
+```bash
+npm run build        # outputs to frontend/dist/
+npm run preview      # serves the production build locally
+```
+
+> **Note:** The backend must be running for search and document management to work. Without it the UI will show network errors.
 
 ## Metrics
 
