@@ -17,6 +17,7 @@ class Document(BaseModel):
     size_bytes: int
     status: DocumentStatus = DocumentStatus.pending
     md5_hash: str = ""
+    tags: list[str] = []
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 

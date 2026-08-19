@@ -48,49 +48,68 @@ export default function SearchPage() {
     }
   }
 
+  function handleKeyDown(event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault()
+      handleSubmit(event)
+    }
+  }
+
   const answerNodes = useMemo(() => {
     if (!result) return null
     return highlightSources(result.answer, result.sources)
   }, [result])
 
+  const showEmpty = !isSearching && !result && !error
+
   return (
     <section className="page">
-      <header className="page-header">
-        <h1>Search</h1>
-        <p>Ask a question and get answers cited from your documents.</p>
-      </header>
-
-      <form className="search-form" onSubmit={handleSubmit}>
-        <label className="search-form-label" htmlFor="question">
-          Your question
-        </label>
-        <textarea
-          id="question"
-          rows="4"
-          value={question}
-          onChange={(event) => setQuestion(event.target.value)}
-          placeholder="e.g. How many remote days do I get?"
-        />
-        <button
-          type="submit"
-          className="search-submit"
-          disabled={!question.trim() || isSearching}
-        >
-          {isSearching ? 'Searching…' : 'Ask'}
-        </button>
-      </form>
-
-      {isSearching && <LoadingSpinner label="Searching your documents…" />}
-
-      {!isSearching && !result && !error && (
-        <div className="search-empty">
-          <span className="search-empty-title">Ready when you are</span>
-          <p className="search-empty-text">
-            Ask a question above and you will get an answer with the documents it was
-            based on.
+      {showEmpty && (
+        <div className="search-hero">
+          <h1>Mwongozo</h1>
+          <p className="search-hero-sub">
+            Ask questions about your uploaded documents — policies, guides, FAQs, manuals.
+            Every answer cites the source so you can verify it.
           </p>
         </div>
       )}
+
+      <form className="search-bar" onSubmit={handleSubmit}>
+        <input
+          type="text"
+          className="search-input"
+          value={question}
+          onChange={(event) => setQuestion(event.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Ask anything about your documents..."
+          disabled={isSearching}
+        />
+        <button
+          type="submit"
+          className="search-send"
+          disabled={!question.trim() || isSearching}
+          aria-label="Send"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13" />
+            <polygon points="22 2 15 22 11 13 2 9 22 2" />
+          </svg>
+        </button>
+      </form>
+
+      {showEmpty && (
+        <div className="search-hints">
+          <p>How it works:</p>
+          <ul>
+            <li>Upload documents via the <strong>Admin</strong> page (or use the sample docs that ship with the project).</li>
+            <li>Type a natural-language question above and press <strong>Enter</strong>.</li>
+            <li>Mwongozo searches your documents for relevant passages and generates a cited answer.</li>
+          </ul>
+          <p className="search-hint-examples">Try: "How many remote work days are allowed?" or "How do I file an expense report?"</p>
+        </div>
+      )}
+
+      {isSearching && <LoadingSpinner label="Searching your documents…" />}
 
       {error && (
         <div className="search-error" role="alert">

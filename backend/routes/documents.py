@@ -7,24 +7,30 @@ from fastapi import APIRouter, File, HTTPException, Request, UploadFile
 from backend.models.record import Document, DocumentStatus, IndexResult, IndexStatus, ReindexSummary
 from backend.services.indexing import SAMPLE_DOCS_DIR, UPLOADS_DIR, cache, index_document, vector_store
 from backend.services.parser import SUPPORTED_EXTENSIONS, get_file_metadata
+from backend.services.tags import TagStore
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
+_tag_store = TagStore(str(Path(__file__).resolve().parent.parent / "data" / "tags.json"))
+
 
 @router.get("/", response_model=list[Document])
-async def list_documents():
+async def list_documents(tag: str | None = None):
     docs = []
     for path_key, entry in cache.list_files().items():
         path = Path(path_key)
         md5 = entry.get("md5", "")
         chunks = entry.get("chunks") or []
         indexed_at = entry.get("indexed_at")
+        doc_tags = _tag_store.get_tags(md5)
         try:
             size = path.stat().st_size
         except OSError:
             size = 0
+        if tag and tag not in doc_tags:
+            continue
         docs.append(Document(
             id=md5,
             filename=path.name,
@@ -32,10 +38,38 @@ async def list_documents():
             size_bytes=size,
             status=DocumentStatus.ready,
             md5_hash=md5,
+            tags=doc_tags,
             updated_at=datetime.fromisoformat(indexed_at) if indexed_at else datetime.utcnow(),
         ))
     docs.sort(key=lambda d: d.updated_at, reverse=True)
     return docs
+
+
+@router.get("/tags")
+async def list_all_tags():
+    """Return all unique tags across all documents."""
+    return {"tags": _tag_store.list_all_tags()}
+
+
+@router.post("/{doc_id}/tags")
+async def set_document_tags(doc_id: str, tags: list[str]):
+    """Set tags for a document (replaces existing tags)."""
+    _tag_store.set_tags(doc_id, tags)
+    return {"doc_id": doc_id, "tags": _tag_store.get_tags(doc_id)}
+
+
+@router.post("/{doc_id}/tags/{tag}")
+async def add_document_tag(doc_id: str, tag: str):
+    """Add a single tag to a document."""
+    _tag_store.add_tag(doc_id, tag)
+    return {"doc_id": doc_id, "tags": _tag_store.get_tags(doc_id)}
+
+
+@router.delete("/{doc_id}/tags/{tag}")
+async def remove_document_tag(doc_id: str, tag: str):
+    """Remove a single tag from a document."""
+    _tag_store.remove_tag(doc_id, tag)
+    return {"doc_id": doc_id, "tags": _tag_store.get_tags(doc_id)}
 
 
 @router.post("/upload", response_model=Document)
@@ -122,6 +156,7 @@ async def delete_document(request: Request, doc_id: str):
     request_id = getattr(request.state, "request_id", "-")
     removed_vectors = vector_store.remove_document(doc_id)
     removed_cache = cache.remove_by_md5(doc_id)
+    _tag_store.remove_document(doc_id)
     if removed_vectors == 0 and removed_cache == 0:
         raise HTTPException(status_code=404, detail=f"No document found with id {doc_id}")
     logger.info(
