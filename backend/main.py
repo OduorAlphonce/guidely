@@ -22,6 +22,28 @@ from backend.services.stats import stats
 # Ensure uploads directory exists before the app serves requests
 Path(__file__).resolve().parent.joinpath("data", "uploads").mkdir(parents=True, exist_ok=True)
 
+
+@app.on_event("startup")
+def auto_index():
+    """Index all sample docs and uploads on startup so search works immediately."""
+    from backend.services.indexing import SAMPLE_DOCS_DIR, UPLOADS_DIR
+    from backend.services.parser import SUPPORTED_EXTENSIONS
+
+    logger = logging.getLogger("startup")
+    for folder in (SAMPLE_DOCS_DIR, UPLOADS_DIR):
+        if not folder.exists():
+            continue
+        for path in sorted(folder.rglob("*")):
+            if path.is_file() and path.suffix.lower() in SUPPORTED_EXTENSIONS:
+                try:
+                    result = indexing.index_document(str(path))
+                    if result["status"] == "indexed":
+                        logger.info("auto-index: indexed %s (%d chunks)", path.name, result["chunks"])
+                    elif result["status"] == "skipped":
+                        logger.info("auto-index: cached %s (unchanged)", path.name)
+                except Exception as e:
+                    logger.warning("auto-index: failed %s: %s", path.name, e)
+
 # Initialize the core FastAPI application
 app = FastAPI(
     title="Guidely API",
