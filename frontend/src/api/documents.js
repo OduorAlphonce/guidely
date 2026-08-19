@@ -1,7 +1,10 @@
-const BASE = '/api/documents'
+import API_BASE from './config.js'
 
-export async function listDocuments() {
-  const res = await fetch(`${BASE}/`)
+const BASE = `${API_BASE}/api/documents`
+
+export async function listDocuments(tag) {
+  const url = tag ? `${BASE}/?tag=${encodeURIComponent(tag)}` : `${BASE}/`
+  const res = await fetch(url)
   if (!res.ok) {
     const data = await res.json().catch(() => ({}))
     throw new Error(data.detail || `Failed to list documents (${res.status})`)

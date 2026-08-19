@@ -1,5 +1,7 @@
+import API_BASE from './config.js'
+
 export async function searchDocuments(question) {
-  const response = await fetch('/api/search/', {
+  const response = await fetch(`${API_BASE}/api/search/`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
