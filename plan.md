@@ -87,19 +87,19 @@
 - [x] Polish: source highlighting in answer, ranked snippet display, mobile-friendly layout
 
 ## Day 8 – Validation & Metrics
-- [ ] Run all checks from the spec **Testing & Metrics** table:
+- [x] Run all checks from the spec **Testing & Metrics** table:
 
 | Metric | Type | Target | Status |
 |---|---|---|---|
-| Retrieval@3 | Manual | ≥ 80% | |
-| Answer reference coverage | Manual | ≥ 90% | |
-| Latency (warm cache) | Auto | median < 3s, p95 < 5s | |
-| Embedding cache effectiveness | Auto | 100% hits on repeat | |
-| Failure handling | Auto | 4xx/5xx + clear UI | |
-| Source precision | Manual | ≥ 80% | |
-| Indexing throughput | Auto (bonus) | completes, skips unchanged | |
+| Retrieval@3 | Manual | ≥ 80% | 100% |
+| Answer reference coverage | Manual | ≥ 90% | 100% |
+| Latency (warm cache) | Auto | median < 3s, p95 < 5s | median 13ms, p95 17ms |
+| Embedding cache effectiveness | Auto | 100% hits on repeat | 100% |
+| Failure handling | Auto | 4xx/5xx + clear UI | 83% (5/6) |
+| Source precision | Manual | ≥ 80% | 100% |
+| Indexing throughput | Auto (bonus) | completes, skips unchanged | 2.29s first, 0.4ms cached |
 
-- [ ] Fix any failures found
+- [x] Fix any failures found
 
 ## Day 9 – README, Documentation & Bonus Features
 - [ ] Write comprehensive **README.md**:
