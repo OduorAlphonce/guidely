@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import PlainTextResponse
 
 from backend.models.record import Answer, Query, SourceRef
-from backend.services.llm import LLMTimeoutError, llm
+from backend.services.llm import LLMRateLimitError, LLMTimeoutError, build_fallback_answer, llm
 from backend.services.query_log import query_log
 from backend.services.retrieval import retrieve
 from backend.services.stats import stats
@@ -24,6 +24,10 @@ TIMEOUT_FALLBACK_MESSAGE = (
     "The answer model timed out before responding. "
     "Here are the most relevant passages I found:"
 )
+RATE_LIMIT_FALLBACK_MESSAGE = (
+    "The AI service quota has been exceeded. "
+    "Here are the most relevant passages from your documents:"
+)
 
 
 def _snippet(text: str) -> str:
@@ -37,9 +41,33 @@ def _ms(start: float) -> float:
     return round((time.perf_counter() - start) * 1000, 2)
 
 
+def _deduplicate_chunks(chunks: list[dict]) -> list[dict]:
+    """Remove near-duplicate chunks based on text similarity."""
+    if not chunks:
+        return []
+    seen = []
+    unique = []
+    for chunk in chunks:
+        text = chunk.get("text", "").strip()
+        if not text:
+            continue
+        is_duplicate = False
+        for seen_text in seen:
+            if text[:100] == seen_text[:100]:
+                is_duplicate = True
+                break
+        if not is_duplicate:
+            seen.append(text)
+            unique.append(chunk)
+    return unique
+
+
 def _timeout_fallback_answer(chunks: list[dict]) -> str:
+    unique_chunks = _deduplicate_chunks(chunks)
+    if not unique_chunks:
+        return TIMEOUT_FALLBACK_MESSAGE
     snippets = "\n\n".join(
-        f"[{i}] {c['filename']}: {_snippet(c['text'])}" for i, c in enumerate(chunks, 1)
+        f"[{i}] {c['filename']}: {_snippet(c['text'])}" for i, c in enumerate(unique_chunks[:3], 1)
     )
     return f"{TIMEOUT_FALLBACK_MESSAGE}\n\n{snippets}"
 
@@ -88,9 +116,10 @@ async def search(query: Query, request: Request):
     except LLMTimeoutError:
         total_ms = _ms(request_start)
         error_count = stats.record_error("search:LLMTimeoutError")
+        unique_chunks = _deduplicate_chunks(chunks)
         sources = [
             SourceRef(file=c["filename"], snippet=_snippet(c["text"]), score=c["score"])
-            for c in chunks
+            for c in unique_chunks[:3]
         ]
         logger.warning(
             "search request_id=%s question=%r total_ms=%.2f retrieval_ms=%.2f "
@@ -112,6 +141,39 @@ async def search(query: Query, request: Request):
         return Answer(
             question=query.question,
             answer=_timeout_fallback_answer(chunks),
+            sources=sources,
+            latency_ms=total_ms,
+        )
+    except LLMRateLimitError as e:
+        total_ms = _ms(request_start)
+        error_count = stats.record_error("search:LLMRateLimitError")
+        unique_chunks = _deduplicate_chunks(chunks)
+        sources = [
+            SourceRef(file=c["filename"], snippet=_snippet(c["text"]), score=c["score"])
+            for c in unique_chunks[:3]
+        ]
+        fallback_answer = build_fallback_answer(chunks)
+        logger.warning(
+            "search request_id=%s question=%r total_ms=%.2f retrieval_ms=%.2f "
+            "status=rate_limit_fallback sources=%d error_count=%d error=%s",
+            request_id,
+            query.question,
+            total_ms,
+            retrieval_ms,
+            len(sources),
+            error_count,
+            e,
+        )
+        query_log.record(
+            question=query.question,
+            answer=fallback_answer,
+            sources=[s.file for s in sources],
+            latency_ms=total_ms,
+            status="rate_limit_fallback",
+        )
+        return Answer(
+            question=query.question,
+            answer=fallback_answer,
             sources=sources,
             latency_ms=total_ms,
         )
