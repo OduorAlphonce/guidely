@@ -115,6 +115,12 @@ export default function SearchPage() {
         <div className="search-error" role="alert">
           <h2>Sorry, that did not work</h2>
           <p>{error}</p>
+          {error.includes('quota') && (
+            <p className="search-error-hint">
+              The AI service has reached its usage limit. Your retrieved documents are still shown below.
+              Please contact your administrator to check the API billing details.
+            </p>
+          )}
           <button type="button" className="search-error-dismiss" onClick={() => setError(null)}>
             Dismiss
           </button>
