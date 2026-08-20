@@ -18,7 +18,7 @@ if str(ROOT_DIR) not in sys.path:
 
 from unittest import mock
 
-from backend.services.llm import LLM, SYSTEM_PROMPT, build_prompt, llm
+from backend.services.llm import LLM, LLMRateLimitError, SYSTEM_PROMPT, build_fallback_answer, build_prompt, llm
 
 PASS = 0
 FAIL = 0
@@ -96,6 +96,45 @@ def test_missing_api_key():
         check("raises when no API key is configured", False)
 
 
+def test_build_fallback_answer():
+    print("\nTest 4: build_fallback_answer with context")
+    fallback = build_fallback_answer(SAMPLE_CONTEXT)
+    check("includes AI model unavailable message", "AI model is temporarily unavailable" in fallback)
+    check("includes source filenames", "policy.txt" in fallback or "howto.txt" in fallback)
+    check("snippets are numbered", "[1]" in fallback)
+
+
+def test_build_fallback_answer_empty():
+    print("\nTest 5: build_fallback_answer with empty context")
+    fallback = build_fallback_answer([])
+    check("handles empty context", "No relevant context found" in fallback)
+
+
+def test_rate_limit_error():
+    print("\nTest 6: LLMRateLimitError for quota exceeded")
+    fake = FakeCompletions("test")
+    llm._client = SimpleNamespace(chat=SimpleNamespace(completions=fake))
+
+    import openai
+    error_response = mock.MagicMock()
+    error_response.status_code = 429
+    error_response.json.return_value = {"error": {"message": "You exceeded your current quota", "type": "insufficient_quota", "param": None, "code": "insufficient_quota"}}
+
+    with mock.patch.object(llm._client.chat.completions, 'create', side_effect=openai.RateLimitError(
+        message="You exceeded your current quota",
+        response=error_response,
+        body={"error": {"message": "You exceeded your current quota", "type": "insufficient_quota", "param": None, "code": "insufficient_quota"}}
+    )):
+        try:
+            llm.generate_answer("How many remote days?", SAMPLE_CONTEXT)
+            check("raises LLMRateLimitError for quota exceeded", False)
+        except LLMRateLimitError as e:
+            check("raises LLMRateLimitError for quota exceeded", True)
+            check("error message mentions quota", "quota" in str(e).lower())
+        except Exception as e:
+            check("raises LLMRateLimitError for quota exceeded", False)
+
+
 def main():
     print("=" * 64)
     print("Guidely LLM service — verification (Day 3, issue #13)")
@@ -104,6 +143,9 @@ def main():
     test_build_prompt()
     test_generate_answer_success()
     test_missing_api_key()
+    test_build_fallback_answer()
+    test_build_fallback_answer_empty()
+    test_rate_limit_error()
 
     print("\n" + "=" * 64)
     print(f"RESULTS: {PASS} passed, {FAIL} failed")
