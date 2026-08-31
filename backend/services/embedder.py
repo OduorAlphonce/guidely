@@ -3,7 +3,7 @@ import os
 import threading
 import time
 
-import openai
+import openrouter
 import tiktoken
 from sentence_transformers import SentenceTransformer
 

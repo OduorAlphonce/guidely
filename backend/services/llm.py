@@ -2,7 +2,7 @@ import logging
 import os
 import time
 
-import openai
+import openrouter
 
 logger = logging.getLogger(__name__)
 
