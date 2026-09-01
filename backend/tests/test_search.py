@@ -188,11 +188,12 @@ def test_endpoint_validation_and_shape():
     check("answer is a string", isinstance(body["answer"], str))
     check("latency_ms is numeric", isinstance(body["latency_ms"], (int, float)))
     check("sources is a list", isinstance(body["sources"], list))
-    check("every source has exactly file/snippet/score",
-          all(set(s) == {"file", "snippet", "score"} for s in body["sources"]))
+    check("every source has exactly file/snippet/score/text",
+          all(set(s) == {"file", "snippet", "score", "text"} for s in body["sources"]))
     check("every source file is a string", all(isinstance(s["file"], str) for s in body["sources"]))
     check("every source snippet is a string", all(isinstance(s["snippet"], str) for s in body["sources"]))
     check("every source score is a float", all(isinstance(s["score"], float) for s in body["sources"]))
+    check("every source has a non-empty full text", all(s["text"] for s in body["sources"]))
 
     for bad in (123, ["question"], {"nested": "query"}, 3.14, None):
         resp = CLIENT.post("/api/search/", json={"question": bad})

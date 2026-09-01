@@ -118,7 +118,7 @@ async def search(query: Query, request: Request):
         error_count = stats.record_error("search:LLMTimeoutError")
         unique_chunks = _deduplicate_chunks(chunks)
         sources = [
-            SourceRef(file=c["filename"], snippet=_snippet(c["text"]), score=c["score"])
+            SourceRef(file=c["filename"], snippet=_snippet(c["text"]), score=c["score"], text=c["text"])
             for c in unique_chunks[:3]
         ]
         logger.warning(
@@ -149,7 +149,7 @@ async def search(query: Query, request: Request):
         error_count = stats.record_error("search:LLMRateLimitError")
         unique_chunks = _deduplicate_chunks(chunks)
         sources = [
-            SourceRef(file=c["filename"], snippet=_snippet(c["text"]), score=c["score"])
+            SourceRef(file=c["filename"], snippet=_snippet(c["text"]), score=c["score"], text=c["text"])
             for c in unique_chunks[:3]
         ]
         fallback_answer = build_fallback_answer(chunks)
@@ -208,7 +208,7 @@ async def search(query: Query, request: Request):
     llm_ms = _ms(llm_start)
 
     sources = [
-        SourceRef(file=c["filename"], snippet=_snippet(c["text"]), score=c["score"])
+        SourceRef(file=c["filename"], snippet=_snippet(c["text"]), score=c["score"], text=c["text"])
         for c in chunks
     ]
 

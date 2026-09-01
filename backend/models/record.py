@@ -62,6 +62,7 @@ class SourceRef(BaseModel):
     file: str
     snippet: str
     score: float
+    text: str = ""
 
 
 class Answer(BaseModel):
