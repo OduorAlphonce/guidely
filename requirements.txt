@@ -44,7 +44,7 @@ websockets==16.1.1
 
 # Guidely specific dependencies
 torch==2.13.0
-openrouter==1.1.106
+openai>=1.58.0
 tiktoken==0.9.0
 faiss-cpu==1.12.0
 numpy==2.2.4

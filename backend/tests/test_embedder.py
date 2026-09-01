@@ -15,7 +15,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
 
-os.environ["OPENAI_API_KEY"] = ""
+os.environ["OPENROUTER_API_KEY"] = ""
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent
 ROOT_DIR = BACKEND_DIR.parent

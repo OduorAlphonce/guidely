@@ -89,7 +89,9 @@ Create a `.env` file in the repo root:
 ```
 # Optional — without a key the embedder falls back to a local
 # sentence-transformers model and answer generation is disabled.
-OPENAI_API_KEY=sk-...
+# Obtain a key from https://openrouter.ai (OpenRouter providers the
+# LLM + embeddings via an OpenAI-compatible API).
+OPENROUTER_API_KEY=sk-or-...
 ```
 
 > Note: the key is read once at startup, so restart the server after changing it.

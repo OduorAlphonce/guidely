@@ -16,7 +16,7 @@ import tempfile
 import time
 from pathlib import Path
 
-os.environ["OPENAI_API_KEY"] = ""
+os.environ["OPENROUTER_API_KEY"] = ""
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent
 ROOT_DIR = BACKEND_DIR.parent
@@ -248,7 +248,7 @@ def test_failure_handling():
 
     total_checks += 1
     resp = CLIENT.post("/api/search/", json={"question": "test"})
-    if resp.status_code == 500 and "OPENAI_API_KEY" in resp.json().get("detail", ""):
+    if resp.status_code == 500 and "OPENROUTER_API_KEY" in resp.json().get("detail", ""):
         passed += 1
         print("    [PASS] Missing API key -> 500 with actionable message")
     else:

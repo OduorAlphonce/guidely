@@ -3,13 +3,14 @@ import os
 import threading
 import time
 
-import openrouter
+import openai
 import tiktoken
 from sentence_transformers import SentenceTransformer
 
 logger = logging.getLogger(__name__)
 
-OPENAI_MODEL = "text-embedding-ada-002"
+OPENAI_MODEL = "openai/text-embedding-ada-002"
+OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 FALLBACK_MODEL = "all-MiniLM-L6-v2"
 MAX_RETRIES = 2
 RETRY_DELAY = 1.0
@@ -39,12 +40,15 @@ def _get_transformer(model: str) -> SentenceTransformer:
 class Embedder:
     def __init__(self):
         self._encoding = tiktoken.get_encoding("cl100k_base")
-        api_key = os.getenv("OPENAI_API_KEY")
+        api_key = os.getenv("OPENROUTER_API_KEY")
         if api_key:
-            self._client = openai.OpenAI(api_key=api_key)
+            self._client = openai.OpenAI(
+                api_key=api_key,
+                base_url=OPENROUTER_BASE_URL,
+            )
             self._model = OPENAI_MODEL
         else:
-            logger.info("OPENAI_API_KEY not set, using fallback model %s", FALLBACK_MODEL)
+            logger.info("OPENROUTER_API_KEY not set, using fallback model %s", FALLBACK_MODEL)
             self._model = FALLBACK_MODEL
 
     def embed(self, text: str) -> list[float]:

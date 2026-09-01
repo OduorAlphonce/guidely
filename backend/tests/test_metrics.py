@@ -24,7 +24,7 @@ import tempfile
 from pathlib import Path
 
 # Force the offline sentence-transformers fallback so tests never touch OpenAI.
-os.environ["OPENAI_API_KEY"] = ""
+os.environ["OPENROUTER_API_KEY"] = ""
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent
 ROOT_DIR = BACKEND_DIR.parent
@@ -197,7 +197,7 @@ def test_metrics_returns_real_state():
             "score": 0.91,
         }]
         search_route.llm = FakeLLM(error=ValueError(
-            "OPENAI_API_KEY is not set. Add it to the .env file before asking questions."
+            "OPENROUTER_API_KEY is not set. Add it to the .env file before asking questions."
         ))
         CLIENT.post("/api/search/", json={"question": "missing key"})
 

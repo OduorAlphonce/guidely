@@ -16,7 +16,7 @@ import tempfile
 from pathlib import Path
 
 # Force the offline sentence-transformers fallback.
-os.environ["OPENAI_API_KEY"] = ""
+os.environ["OPENROUTER_API_KEY"] = ""
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent
 ROOT_DIR = BACKEND_DIR.parent

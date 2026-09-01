@@ -65,6 +65,9 @@ def auto_index():
                         logger.info("auto-index: cached %s (unchanged)", path.name)
                 except Exception as e:
                     logger.warning("auto-index: failed %s: %s", path.name, e)
+    import backend.services.retrieval as retrieval
+    retrieval.vector_store.load()
+    logger.info("auto-index: loaded %d vectors into retrieval index", retrieval.vector_store.count())
 
 
 # Connect your sub-routers to the main application

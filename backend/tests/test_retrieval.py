@@ -18,8 +18,8 @@ from types import SimpleNamespace
 from unittest import mock
 
 # Force the offline sentence-transformers fallback so tests never touch OpenAI,
-# even if a (stub) OPENAI_API_KEY is present in .env.
-os.environ["OPENAI_API_KEY"] = ""
+# even if a (stub) OPENROUTER_API_KEY is present in .env.
+os.environ["OPENROUTER_API_KEY"] = ""
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent
 ROOT_DIR = BACKEND_DIR.parent

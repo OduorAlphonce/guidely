@@ -15,8 +15,8 @@ import tempfile
 from pathlib import Path
 
 # Force the offline sentence-transformers fallback so tests never touch OpenAI,
-# even if a (stub) OPENAI_API_KEY is present in .env.
-os.environ["OPENAI_API_KEY"] = ""
+# even if a (stub) OPENROUTER_API_KEY is present in .env.
+os.environ["OPENROUTER_API_KEY"] = ""
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent
 ROOT_DIR = BACKEND_DIR.parent
@@ -206,17 +206,17 @@ def test_endpoint_validation_and_shape():
 
 
 def test_missing_api_key_is_actionable():
-    print("\nTest 4: Missing OPENAI_API_KEY -> actionable 500")
+    print("\nTest 4: Missing OPENROUTER_API_KEY -> actionable 500")
     search_route.retrieve = lambda question, k=5: sample_chunks()
     search_route.llm = FakeLLM(error=ValueError(
-        "OPENAI_API_KEY is not set. Add it to the .env file before asking questions."
+        "OPENROUTER_API_KEY is not set. Add it to the .env file before asking questions."
     ))
 
     resp = CLIENT.post("/api/search/", json={"question": "How many remote days?"})
 
     check("returns HTTP 500", resp.status_code == 500)
     detail = resp.json()["detail"]
-    check("error names OPENAI_API_KEY and remediation", "OPENAI_API_KEY" in detail and ".env" in detail)
+    check("error names OPENROUTER_API_KEY and remediation", "OPENROUTER_API_KEY" in detail and ".env" in detail)
 
 
 def test_end_to_end_retrieval():

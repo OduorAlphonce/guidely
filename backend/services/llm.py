@@ -2,11 +2,12 @@ import logging
 import os
 import time
 
-import openrouter
+import openai
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_MODEL = "gpt-3.5-turbo"
+DEFAULT_MODEL = "openai/gpt-3.5-turbo"
+OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 SYSTEM_PROMPT = "Answer concisely using only the provided context. Cite source file names."
 TIMEOUT_SECONDS = 30
 MAX_RETRIES = 2
@@ -80,11 +81,15 @@ def build_fallback_answer(chunks: list[dict]) -> str:
 class LLM:
     def __init__(self, model: str = DEFAULT_MODEL):
         self._model = model
-        api_key = os.getenv("OPENAI_API_KEY")
+        api_key = os.getenv("OPENROUTER_API_KEY")
         if api_key:
-            self._client = openai.OpenAI(api_key=api_key, timeout=TIMEOUT_SECONDS)
+            self._client = openai.OpenAI(
+                api_key=api_key,
+                base_url=OPENROUTER_BASE_URL,
+                timeout=TIMEOUT_SECONDS,
+            )
         else:
-            logger.warning("OPENAI_API_KEY not set; answer generation will fail until it is configured")
+            logger.warning("OPENROUTER_API_KEY not set; answer generation will fail until it is configured")
             self._client = None
 
     @property
@@ -94,7 +99,7 @@ class LLM:
     def generate_answer(self, question: str, context: list[dict]) -> str:
         if self._client is None:
             raise ValueError(
-                "OPENAI_API_KEY is not set. Add it to the .env file before asking questions."
+                "OPENROUTER_API_KEY is not set. Add it to the .env file before asking questions."
             )
         user_prompt = build_prompt(question, context)
         last_error = None
@@ -114,9 +119,9 @@ class LLM:
                 last_error = e
                 error_msg = str(e)
                 if "insufficient_quota" in error_msg:
-                    logger.error("OpenAI quota exceeded: %s", e)
+                    logger.error("OpenRouter quota exceeded: %s", e)
                     raise LLMRateLimitError(
-                        "OpenAI API quota exceeded. Please check your billing details."
+                        "OpenRouter API quota exceeded. Please check your billing details."
                     ) from e
                 if attempt < MAX_RETRIES:
                     wait_time = RETRY_DELAY * (2 ** attempt)
@@ -142,7 +147,7 @@ class LLM:
                     f"Answer model timed out after {TIMEOUT_SECONDS} seconds"
                 ) from e
             except openai.APIError as e:
-                logger.error("OpenAI API error: %s", e)
+                logger.error("OpenRouter API error: %s", e)
                 raise LLMRateLimitError(
                     f"AI service error: {e}"
                 ) from e

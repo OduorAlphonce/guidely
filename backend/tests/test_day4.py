@@ -7,7 +7,7 @@ Covers:
   #27
     1. Empty query -> 400 (still holds)
     2. No results -> graceful message (still holds)
-    3. Missing OPENAI_API_KEY -> actionable 500 (still holds)
+    3. Missing OPENROUTER_API_KEY -> actionable 500 (still holds)
     4. Corrupted file upload -> HTTP 400 with a clear message
     5. Empty file upload -> HTTP 400 with a clear message
     6. Re-index reports a corrupted file as failed without crashing
@@ -26,7 +26,7 @@ from pathlib import Path
 
 # Force the offline sentence-transformers fallback so tests never touch OpenAI.
 os_environ = __import__("os").environ
-os_environ["OPENAI_API_KEY"] = ""
+os_environ["OPENROUTER_API_KEY"] = ""
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent
 ROOT_DIR = BACKEND_DIR.parent
@@ -135,15 +135,15 @@ def test_no_results_still_graceful():
 
 
 def test_missing_api_key_still_actionable():
-    print("\nTest 3: Missing OPENAI_API_KEY -> actionable 500 (still holds)")
+    print("\nTest 3: Missing OPENROUTER_API_KEY -> actionable 500 (still holds)")
     search_route.retrieve = lambda question, k=5: SAMPLE_CHUNKS
     search_route.llm = FakeLLM(error=ValueError(
-        "OPENAI_API_KEY is not set. Add it to the .env file before asking questions."
+        "OPENROUTER_API_KEY is not set. Add it to the .env file before asking questions."
     ))
     resp = CLIENT.post("/api/search/", json={"question": "How many remote days?"})
     check("returns HTTP 500", resp.status_code == 500)
     detail = resp.json()["detail"]
-    check("error names OPENAI_API_KEY and remediation", "OPENAI_API_KEY" in detail and ".env" in detail)
+    check("error names OPENROUTER_API_KEY and remediation", "OPENROUTER_API_KEY" in detail and ".env" in detail)
 
 
 def test_corrupted_file_upload_400():
@@ -255,7 +255,7 @@ def test_error_counts_tracked():
     CLIENT.post("/api/search/", json={"question": "timeout case"})
     check("LLM timeout counted", stats.get_error_counts().get("search:LLMTimeoutError") == 1)
 
-    search_route.llm = FakeLLM(error=ValueError("OPENAI_API_KEY is not set. Add it to the .env file."))
+    search_route.llm = FakeLLM(error=ValueError("OPENROUTER_API_KEY is not set. Add it to the .env file."))
     CLIENT.post("/api/search/", json={"question": "missing key case"})
     check("missing-key ValueError counted", stats.get_error_counts().get("search:ValueError") == 1)
 

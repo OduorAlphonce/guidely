@@ -83,7 +83,7 @@ def test_generate_answer_success():
 
 
 def test_missing_api_key():
-    print("\nTest 3: Missing OPENAI_API_KEY is actionable")
+    print("\nTest 3: Missing OPENROUTER_API_KEY is actionable")
     with mock.patch("backend.services.llm.os.getenv", return_value=None):
         fresh = LLM()
     try:
@@ -91,7 +91,7 @@ def test_missing_api_key():
         check("raises when no API key is configured", False)
     except ValueError as e:
         check("raises when no API key is configured", True)
-        check("error message names OPENAI_API_KEY and remediation", "OPENAI_API_KEY" in str(e) and ".env" in str(e))
+        check("error message names OPENROUTER_API_KEY and remediation", "OPENROUTER_API_KEY" in str(e) and ".env" in str(e))
     except Exception:
         check("raises when no API key is configured", False)
 
