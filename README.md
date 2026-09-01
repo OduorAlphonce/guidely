@@ -16,9 +16,9 @@ Guidely combines **semantic search** with **LLM-powered answer generation**. Upl
 |---|---|
 | **Frontend** | React + Vite |
 | **Backend** | FastAPI (Python 3.12) |
-| **Embeddings** | OpenAI `text-embedding-ada-002` (with sentence-transformers fallback) |
+| **Embeddings** | OpenRouter `openai/text-embedding-ada-002` (with sentence-transformers fallback) |
 | **Vector Store** | FAISS (local, disk-persisted) |
-| **LLM** | OpenAI GPT-3.5/4-turbo |
+| **LLM** | OpenRouter `openai/gpt-3.5-turbo` (OpenAI-compatible) |
 | **Chunking** | tiktoken-based token-aware splitting |
 | **Auth / Config** | python-dotenv (`.env`) |
 | **Parsing** | Plain text, Markdown |
@@ -36,7 +36,7 @@ User (Frontend)
     │
     ├── Parser    → reads .txt / .md files
     ├── Chunker   → splits into ~800-token chunks with overlap
-    ├── Embedder  → generates vectors via OpenAI / sentence-transformers
+    ├── Embedder  → generates vectors via OpenRouter / sentence-transformers
     ├── Vector DB → FAISS index (saved to disk)
     ├── LLM       → summarizes retrieved chunks with source citations
     ├── Query Log → records every query for CSV export
@@ -62,7 +62,7 @@ Ask Question ──► Embed Query ──► FAISS Search ──► Top-k Chunks
 
 - Python 3.12+
 - Node.js 18+ (for frontend)
-- OpenAI API key (optional — uses sentence-transformers fallback without it)
+- OpenRouter API key (optional — uses sentence-transformers fallback without it)
 
 ### 1. Clone the repository
 
@@ -138,7 +138,7 @@ npm run preview      # serves the production build locally
 
 ```bash
 # Ask a question
-curl -X POST http://localhost:8000/api/search \
+curl -X POST http://localhost:8000/api/search/ \
   -H "Content-Type: application/json" \
   -d '{"question": "How many remote work days per week are allowed?"}'
 ```
@@ -206,19 +206,23 @@ done
 
 ## Validation Results
 
-Formal validation run on Day 8 using sentence-transformers fallback (no OpenAI key):
+Metrics below are split into **auto-logged** (recorded by the backend at runtime) and **manual validation** (human-reviewed) categories per the spec. Auto-logged metrics are captured by the backend's logger/`/metrics` endpoint and query log; the validation test aggregates them into median/p95 statistics. Results shown are from a fresh validation run:
 
 | Metric | Type | Target | Result |
 |---|---|---|---|
-| Retrieval@3 | Auto | ≥ 80% | **100%** |
-| Answer reference coverage | Auto | ≥ 90% | **100%** |
-| Latency (warm cache) median | Auto | < 3s | **13.4ms** |
-| Latency (warm cache) p95 | Auto | < 5s | **17.0ms** |
+| Retrieval@3 | Manual | ≥ 80% | **100%** |
+| Answer reference coverage | Manual | ≥ 90% | **100%** |
+| Source precision | Manual | ≥ 80% | **100%** |
+| Latency (warm cache) median | Auto | < 3s | **20.9ms** |
+| Latency (warm cache) p95 | Auto | < 5s | **28.2ms** |
 | Embedding cache effectiveness | Auto | 100% hits | **100%** |
-| Failure handling | Auto | ≥ 80% | **83%** |
-| Source precision | Auto | ≥ 80% | **100%** |
-| Indexing throughput | Auto | completes | **2.29s** |
-| Cache skip on re-index | Auto | 100% | **100%** |
+| Failure handling | Auto | 4xx/5xx + clear msg | **100%** (6/6) |
+| Indexing throughput | Auto (bonus) | completes | **3.56s** |
+| Cache skip on re-index | Auto (bonus) | 100% | **100%** |
+
+**Auto-logged metrics** — Latency, embedding cache effectiveness, and failure handling are logged continuously by the backend: every search logs `total_ms`/`retrieval_ms`/`llm_ms` (see `backend/routes/search.py`), the cache records per-file hit/miss (see `backend/services/cache.py`), and errors/types are counted via `backend/services/stats.py` and exposed on `/metrics`.
+
+**Manual validation metrics** — Retrieval@3, answer reference coverage, and source precision are evaluated by human review of the sample query set defined in `backend/tests/test_validation.py`.
 
 To reproduce: `backend/.venv/bin/python backend/tests/test_validation.py`
 
@@ -269,7 +273,7 @@ guidely/
 │   │   ├── retrieval.py     # Vector search + LLM
 │   │   ├── cache.py         # Embedding cache (skip unchanged files)
 │   │   ├── vector_store.py  # FAISS persistence
-│   │   ├── llm.py           # OpenAI answer generation
+│   │   ├── llm.py           # OpenRouter answer generation
 │   │   ├── stats.py         # Metrics counters
 │   │   ├── query_log.py     # Query log with CSV export
 │   │   └── tags.py          # Document tag storage

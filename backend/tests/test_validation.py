@@ -247,6 +247,11 @@ def test_failure_handling():
         print("    [FAIL] Whitespace query -> 400")
 
     total_checks += 1
+    # Restore the real LLM (previous tests inject a FakeLLM) so the missing
+    # API-key branch is exercised: generate_answer raises ValueError when the
+    # key is unset, which the route surfaces as an actionable 500.
+    from backend.services.llm import llm as real_llm
+    search_route.llm = real_llm
     resp = CLIENT.post("/api/search/", json={"question": "test"})
     if resp.status_code == 500 and "OPENROUTER_API_KEY" in resp.json().get("detail", ""):
         passed += 1

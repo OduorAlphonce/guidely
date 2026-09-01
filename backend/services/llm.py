@@ -118,7 +118,12 @@ class LLM:
             except openai.RateLimitError as e:
                 last_error = e
                 error_msg = str(e)
-                if "insufficient_quota" in error_msg:
+                quota_exhausted = (
+                    getattr(e, "code", None) == "insufficient_quota"
+                    or "insufficient_quota" in error_msg
+                    or "quota" in error_msg.lower()
+                )
+                if quota_exhausted:
                     logger.error("OpenRouter quota exceeded: %s", e)
                     raise LLMRateLimitError(
                         "OpenRouter API quota exceeded. Please check your billing details."
